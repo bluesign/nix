@@ -26,14 +26,13 @@ imports = [
 	programs.git.enable = true;
 	home.stateVersion = "25.11";
 
-
-  xdg.configFile = builtins.mapAttrs
-    (name: subpath: {
-      source = create_symlink "${dotfiles}/${subpath}";
-      recursive = true;
-    })
-    configs;
-
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper = {
+      enable = true;
+    };
+  };
+ 
 
 	home.packages = with pkgs; [
 		#desktop 
