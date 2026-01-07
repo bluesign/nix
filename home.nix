@@ -21,11 +21,18 @@ imports = [
 
   programs.home-manager.enable = true;
 
+   xdg.configFile = builtins.mapAttrs
+    (name: subpath: {
+    source = create_symlink "${dotfiles}/${subpath}";
+    recursive = true;
+    force=true;
+    }) configs;
+
  	home.username = "bluesign";
 	home.homeDirectory = "/home/bluesign";
-	programs.git.enable = true;
 	home.stateVersion = "25.11";
 
+  programs.git.enable = true;
   programs.gh = {
     enable = true;
     gitCredentialHelper = {
