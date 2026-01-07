@@ -32,7 +32,13 @@ imports = [
 	home.homeDirectory = "/home/bluesign";
 	home.stateVersion = "25.11";
 
-  programs.git.enable = true;
+  programs.git = {
+    extraConfig = {
+      user.name = "bluesign";
+      user.email = "deniz@edincik.com";
+    };
+    enable = true;
+  };
   programs.gh = {
     enable = true;
     gitCredentialHelper = {
