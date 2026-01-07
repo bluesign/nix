@@ -20,9 +20,10 @@
 
 
 	outputs = { self, nixpkgs, home-manager, ... }: {
-		nixosConfigurations.blueminix = nixpkgs.lib.nixosSystem {
+		nixosConfigurations.bluebook = nixpkgs.lib.nixosSystem {
 			system = "x86_64-linux";
 			modules = [
+				{networking.hostName = "bluebook"; }
 				./configuration.nix
 				./cosmic-on-niri.nix
 				home-manager.nixosModules.home-manager
@@ -36,5 +37,23 @@
 				}
 			];
 		};
+		nixosConfigurations.blueminix = nixpkgs.lib.nixosSystem {
+			system = "x86_64-linux";
+			modules = [
+				{networking.hostName = "blueminix"; }
+				./configuration.nix
+				./cosmic-on-niri.nix
+				home-manager.nixosModules.home-manager
+				{
+					home-manager = {
+						useGlobalPkgs = true;
+						useUserPackages = true;
+						users.bluesign = import ./home.nix;
+						backupFileExtension = "backup";
+					};
+				}
+			];
+		};
+
 	};
 }
