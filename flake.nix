@@ -1,7 +1,7 @@
 {
   description = "bluesign's nixos";
-  inputs = {
 
+  inputs = {
     nixpkgs.url = "nixpkgs/nixos-25.11";
 
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -14,34 +14,48 @@
       flake = false;
     };
     claude-code.url = "github:sadjow/claude-code-nix";
-
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, ... }: {
+  outputs = { self, nixpkgs, home-manager, claude-code, ... }:
+    let
+      # Helper function to create a host configuration
+      mkHost = { hostname, system ? "x86_64-linux", users ? [ ] }:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./hosts/${hostname}
+            {
+              nixpkgs.overlays = [ claude-code.overlays.default ];
+              environment.systemPackages = [ claude-code ];
+            }
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users = builtins.listToAttrs (map (user: {
+                  name = user;
+                  value = import ./users/${user};
+                }) users);
+                backupFileExtension = "backup";
+              };
+            }
+          ];
+        };
+    in {
+      nixosConfigurations = {
+        # Add new hosts here:
+        # hostname = mkHost { hostname = "hostname"; users = [ "user1" "user2" ]; };
 
-    nixosConfigurations = {
-      bluebook = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          { networking.hostName = "bluebook"; }
-          ./cosmic-on-niri.nix
-          ./configuration.nix
-          {
-            nixpkgs.overlays = [ claude-code.overlays.default ];
-            environment.systemPackages = [ claude-code ];
-          }
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.bluesign = import ./home.nix;
-              backupFileExtension = "backup";
-            };
-          }
-        ];
+        bluebook = mkHost {
+          hostname = "bluebook";
+          users = [ "bluesign" ];
+        };
+
+        blueminix = mkHost {
+          hostname = "blueminix";
+          users = [ "bluesign" ];
+        };
       };
-
     };
-  };
 }
