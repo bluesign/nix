@@ -34,13 +34,14 @@
 
   # uinput access for Sunshine virtual input devices
   services.udev.extraRules = ''
-    KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput"
+    KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
   '';
   boot.kernelModules = [ "uinput" ];
+  hardware.uinput.enable = true;  # Creates uinput group and sets up permissions
 
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "keyd" "input" ];  # input group for Sunshine
+    extraGroups = [ "wheel" "keyd" "uinput" ];  # uinput group for Sunshine
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;
   };
