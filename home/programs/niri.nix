@@ -65,7 +65,9 @@
         { command = [ "systemctl" "--user" "import-environment" ]; }
         { command = [ "systemctl" "--user" "start" "nixos-fake-graphical-session.target" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gtk.service" ]; }
-        { command = [ "cosmic-ext-alternative-startup" ]; }
+        # Wait for PipeWire before starting COSMIC components to avoid busy-loop bug
+        # See: https://github.com/pop-os/cosmic-osd/issues/70
+        { command = [ "sh" "-c" "systemctl --user start pipewire.service pipewire-pulse.service && cosmic-ext-alternative-startup" ]; }
       ];
 
       prefer-no-csd = true;
