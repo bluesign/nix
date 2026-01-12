@@ -15,11 +15,18 @@
   # Apple keyboard - make Fn keys work properly
   # fnmode=1: F1-F12 are media keys, hold Fn for function keys (Apple default)
   # fnmode=2: F1-F12 are function keys, hold Fn for media keys
-  # Audio: MacBookPro13,1 uses Cirrus Logic codec, needs specific model
   boot.extraModprobeConfig = ''
     options hid_apple fnmode=1
-    options snd-hda-intel model=mbp131
   '';
+
+  # CS8409 audio driver for MacBook internal speakers
+  # The mainline driver doesn't initialize the Apple amplifiers properly
+  boot.extraModulePackages = [
+    (config.boot.kernelPackages.callPackage ../../pkgs/snd-hda-macbookpro { })
+  ];
+
+  # Blacklist the built-in CS8409 driver so our patched version loads
+  boot.blacklistedKernelModules = [ "snd_hda_codec_cs8409" ];
 
   # Enable firmware for audio codec
   hardware.enableAllFirmware = true;
