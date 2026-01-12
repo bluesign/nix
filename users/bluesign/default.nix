@@ -18,6 +18,7 @@ in
     ../../home/programs/alacritty.nix
     ../../home/programs/niri.nix
     ../../home/programs/waybar.nix
+    ../../home/programs/tmux.nix
   ];
 
   home = {
