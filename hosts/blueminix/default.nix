@@ -32,6 +32,12 @@
     openFirewall = true;
   };
 
+  # uinput access for Sunshine virtual input devices
+  services.udev.extraRules = ''
+    KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput"
+  '';
+  boot.kernelModules = [ "uinput" ];
+
   users.users.bluesign = {
     isNormalUser = true;
     extraGroups = [ "wheel" "keyd" "input" ];  # input group for Sunshine
