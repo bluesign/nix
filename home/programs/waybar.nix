@@ -1,5 +1,143 @@
 { config, lib, pkgs, ... }:
 
+let
+  # Audio output switcher script
+  audioSwitcher = pkgs.writeShellScriptBin "audio-switcher" ''
+    # Get list of audio sinks (excluding Dummy Output)
+    get_sinks() {
+      ${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+        sed -n '/^Audio/,/^Video/p' | \
+        grep -E '^\s+[│├└]?\s*[0-9]+\.' | \
+        grep -i 'sink\|stereo\|hdmi\|speaker\|headphone\|clip\|bluetooth' | \
+        grep -v 'Dummy' | \
+        sed 's/^[│├└ ]*//; s/\[vol:.*//; s/ *$//'
+    }
+
+    # Get current default sink name
+    get_current() {
+      local current_id=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+        sed -n '/Sinks:/,/Sources:/p' | \
+        grep '^\s*[│├└]\?\s*\*' | \
+        sed 's/^[^0-9]*\([0-9]*\).*/\1/' | head -1)
+
+      if [ -n "$current_id" ]; then
+        ${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+          sed -n '/Sinks:/,/Sources:/p' | \
+          grep "^\s*[│├└]\?\s*\*\?\s*$current_id\." | \
+          sed 's/^[^.]*\. *//; s/\[vol:.*//' | \
+          sed 's/ *$//' | head -1
+      fi
+    }
+
+    # Get short name for display
+    get_short_name() {
+      local name="$1"
+      if echo "$name" | grep -qi 'hdmi'; then
+        echo "HDMI"
+      elif echo "$name" | grep -qi 'clip\|jbl'; then
+        echo "BT"
+      elif echo "$name" | grep -qi 'bluetooth\|bluez'; then
+        echo "BT"
+      elif echo "$name" | grep -qi 'headphone'; then
+        echo "HP"
+      elif echo "$name" | grep -qi 'analog'; then
+        echo "AUX"
+      else
+        echo "$name" | cut -c1-8
+      fi
+    }
+
+    case "$1" in
+      --status)
+        current=$(get_current)
+        if [ -n "$current" ]; then
+          short=$(get_short_name "$current")
+          echo "{\"text\": \"$short\", \"tooltip\": \"$current\", \"class\": \"audio-output\"}"
+        else
+          echo "{\"text\": \"--\", \"tooltip\": \"No audio output\", \"class\": \"no-audio\"}"
+        fi
+        ;;
+      --switch)
+        # Get all sink IDs
+        sink_ids=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+          sed -n '/Sinks:/,/Sources:/p' | \
+          grep -E '^\s*[│├└]?\s*\*?\s*[0-9]+\.' | \
+          grep -v 'Dummy' | \
+          sed 's/^[^0-9]*\([0-9]*\).*/\1/')
+
+        # Get current default sink ID
+        current_id=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+          sed -n '/Sinks:/,/Sources:/p' | \
+          grep '^\s*[│├└]\?\s*\*' | \
+          sed 's/^[^0-9]*\([0-9]*\).*/\1/' | head -1)
+
+        # Convert to array
+        ids=($sink_ids)
+        count=''${#ids[@]}
+
+        if [ "$count" -lt 2 ]; then
+          ${pkgs.libnotify}/bin/notify-send "Audio" "Only one output available"
+          exit 0
+        fi
+
+        # Find current index and switch to next
+        next_id=""
+        for i in "''${!ids[@]}"; do
+          if [ "''${ids[$i]}" = "$current_id" ]; then
+            next_idx=$(( (i + 1) % count ))
+            next_id="''${ids[$next_idx]}"
+            break
+          fi
+        done
+
+        # If current not found, use first
+        if [ -z "$next_id" ]; then
+          next_id="''${ids[0]}"
+        fi
+
+        # Switch to next sink
+        ${pkgs.wireplumber}/bin/wpctl set-default "$next_id"
+
+        # Get new sink name and notify
+        new_name=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+          sed -n '/Sinks:/,/Sources:/p' | \
+          grep "^\s*[│├└]\?\s*\*\?\s*$next_id\." | \
+          sed 's/^[^.]*\. *//; s/\[vol:.*//' | head -1)
+        ${pkgs.libnotify}/bin/notify-send "Audio Output" "$new_name"
+        ;;
+      --menu)
+        # Show menu with all sinks using fuzzel
+        sink_lines=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null | \
+          sed -n '/Sinks:/,/Sources:/p' | \
+          grep -E '^\s*[│├└]?\s*\*?\s*[0-9]+\.' | \
+          grep -v 'Dummy')
+
+        # Format for fuzzel: "ID: Name"
+        menu_items=$(echo "$sink_lines" | while read line; do
+          id=$(echo "$line" | sed 's/^[^0-9]*\([0-9]*\).*/\1/')
+          name=$(echo "$line" | sed 's/^[^.]*\. *//; s/\[vol:.*//' | sed 's/ *$//')
+          is_default=$(echo "$line" | grep -q '\*' && echo "* " || echo "")
+          echo "$id: $is_default$name"
+        done)
+
+        if [ -z "$menu_items" ]; then
+          ${pkgs.libnotify}/bin/notify-send "Audio" "No audio outputs found"
+          exit 0
+        fi
+
+        selected=$(echo "$menu_items" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt "Audio Output: ")
+        if [ -n "$selected" ]; then
+          selected_id=$(echo "$selected" | cut -d: -f1)
+          ${pkgs.wireplumber}/bin/wpctl set-default "$selected_id"
+          ${pkgs.libnotify}/bin/notify-send "Audio Output" "$(echo "$selected" | cut -d: -f2-)"
+        fi
+        ;;
+      *)
+        echo "Usage: audio-switcher [--status|--switch|--menu]"
+        ;;
+    esac
+  '';
+in
 {
   programs.waybar = {
     enable = true;
@@ -15,7 +153,7 @@
 
         modules-left = [ "custom/launcher" "custom/weather" "custom/btc" "mpris" ];
         modules-center = [ "clock" ];
-        modules-right = [ "tray" "pulseaudio" "bluetooth" "network" "battery" "power-profiles-daemon" "custom/notification" "custom/power" ];
+        modules-right = [ "tray" "custom/audio-output" "pulseaudio" "bluetooth" "network" "battery" "power-profiles-daemon" "custom/notification" "custom/power" ];
 
         "custom/launcher" = {
           format = "󱓞";
@@ -47,6 +185,16 @@
           format = "󰂚";
           tooltip = false;
           on-click = "swaync-client -t -sw";
+        };
+
+        "custom/audio-output" = {
+          format = "󰓃 {}";
+          return-type = "json";
+          interval = 2;
+          exec = "${audioSwitcher}/bin/audio-switcher --status";
+          on-click = "${audioSwitcher}/bin/audio-switcher --switch";
+          on-click-right = "${audioSwitcher}/bin/audio-switcher --menu";
+          tooltip = true;
         };
 
         bluetooth = {
@@ -260,6 +408,15 @@
       #custom-power:hover {
         color: #ff7b63;
       }
+
+      #custom-audio-output {
+        padding: 0 10px;
+        color: #c0c0c0;
+      }
+
+      #custom-audio-output.no-audio {
+        color: #808080;
+      }
     '';
   };
 
@@ -275,6 +432,7 @@
     swaynotificationcenter
     curl
     jq
+    audioSwitcher
   ];
 
   # SwayOSD service for volume/brightness popup

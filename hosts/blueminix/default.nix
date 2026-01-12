@@ -11,6 +11,20 @@
 
   networking.hostName = "blueminix";
 
+  # WirePlumber config for EliteMini (no internal speakers)
+  # Enable HDMI audio auto-profile since this mini PC only has HDMI and headphone jack
+  services.pipewire.wireplumber.extraConfig."50-blueminix-audio" = {
+    "monitor.alsa.rules" = [
+      {
+        matches = [{ "device.name" = "alsa_card.pci-0000_c4_00.1"; }];
+        actions.update-props = {
+          "api.acp.auto-profile" = true;
+          "api.acp.auto-port" = true;
+        };
+      }
+    ];
+  };
+
   # NFS server for shared folder (Tailscale only)
   services.nfs.server = {
     enable = true;
