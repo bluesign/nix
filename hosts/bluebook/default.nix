@@ -25,9 +25,6 @@
     (config.boot.kernelPackages.callPackage ../../pkgs/snd-hda-macbookpro { })
   ];
 
-  # Blacklist the built-in CS8409 driver so our patched version loads
-  boot.blacklistedKernelModules = [ "snd_hda_codec_cs8409" ];
-
   # Enable firmware for audio codec
   hardware.enableAllFirmware = true;
 
