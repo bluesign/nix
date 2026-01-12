@@ -71,12 +71,4 @@ in
     user.email = "deniz@edincik.com";
   };
 
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome-themes-extra;
-    };
-  };
-
 }
