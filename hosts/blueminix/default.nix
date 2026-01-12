@@ -37,6 +37,9 @@
     };
   };
 
+  # Steam gaming platform
+  programs.steam.enable = true;
+
   # uinput access for Sunshine virtual input devices
   services.udev.extraRules = ''
     KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
