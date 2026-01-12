@@ -21,14 +21,18 @@
   programs.zsh.ohMyZsh = {
     enable = true;
     theme = "robbyrussell";
-    plugins = [ "sudo" "terraform" "systemadmin" "vi-mode" ];
+    plugins = [ "git" "z" "fzf" "sudo" "terraform" "systemadmin" "vi-mode" ];
   };
+  programs.zsh.autosuggestions.enable = true;
+  programs.zsh.syntaxHighlighting.enable = true;
 
   # Core packages
   environment.systemPackages = with pkgs; [
     vim
     wget
     git
+    fzf
+    overskride
   ];
 
   # Services
@@ -42,5 +46,20 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+  };
+
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+      };
+      Policy = {
+        AutoEnable = true;
+      };
+    };
   };
 }

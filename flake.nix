@@ -14,9 +14,11 @@
       flake = false;
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    tree-sitter-cadence.url = "path:/home/bluesign/src/tree-sitter-cadence";
+    niri.url = "github:sodiboo/niri-flake";
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, ... }:
+  outputs = { self, nixpkgs, home-manager, claude-code, tree-sitter-cadence, niri, ... }:
     let
       # Helper function to create a host configuration
       mkHost = { hostname, system ? "x86_64-linux", users ? [ ] }:
@@ -25,7 +27,10 @@
           modules = [
             ./hosts/${hostname}
             {
-              nixpkgs.overlays = [ claude-code.overlays.default ];
+              nixpkgs.overlays = [
+                claude-code.overlays.default
+                tree-sitter-cadence.overlays.default
+              ];
               environment.systemPackages = [ claude-code ];
             }
             home-manager.nixosModules.home-manager
@@ -33,11 +38,12 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
+                sharedModules = [ niri.homeModules.niri ];
                 users = builtins.listToAttrs (map (user: {
                   name = user;
                   value = import ./users/${user};
                 }) users);
-                backupFileExtension = "backup";
+                backupFileExtension = "hm-backup";
               };
             }
           ];
@@ -55,6 +61,12 @@
         blueminix = mkHost {
           hostname = "blueminix";
           users = [ "bluesign" ];
+        };
+
+        # Minimal recovery system - no home-manager needed
+        recovery = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./hosts/recovery ];
         };
       };
     };

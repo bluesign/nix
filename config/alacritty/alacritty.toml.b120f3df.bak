@@ -1,0 +1,3 @@
+[terminal.shell]
+args = []
+program = "/nix/store/6mrkwprlk3j91bl80ngl1mjz0n3sknk2-zsh-5.9/bin/zsh"

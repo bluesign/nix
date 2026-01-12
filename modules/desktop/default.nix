@@ -10,6 +10,20 @@
   programs.niri.enable = true;
   programs.xwayland.enable = true;
 
+  # Enable keyd for tap-vs-hold modifier behavior
+  services.keyd = {
+    enable = true;
+    keyboards.default = {
+      ids = [ "*" ];
+      settings = {
+        main = {
+          # Tap Super = Super+O (toggle-overview), Hold = normal Super modifier
+          meta = "overload(meta, M-o)";
+        };
+      };
+    };
+  };
+
   services.displayManager.ly.enable = true;
   systemd.services.display-manager.environment.XDG_CURRENT_DESKTOP = "X-NIXOS-SYSTEMD-AWARE";
 

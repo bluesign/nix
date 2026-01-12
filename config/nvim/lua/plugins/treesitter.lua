@@ -1,15 +1,38 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- Customize Treesitter
 
 ---@type LazySpec
 return {
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = "BufReadPost",
+    opts = {
+      enable = true,
+      max_lines = 3,
+    },
+  },
+  {
   "nvim-treesitter/nvim-treesitter",
-  opts = {
-    ensure_installed = {
+  opts = function(_, opts)
+    -- Register Cadence parser
+    local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+    parser_config.cadence = {
+      install_info = {
+        url = vim.env.TREE_SITTER_CADENCE_PATH or "/home/bluesign/src/tree-sitter-cadence",
+        files = { "parser/parser.c", "parser/scanner.c" },
+        generate_requires_npm = false,
+        requires_generate_from_grammar = false,
+      },
+      filetype = "cadence",
+    }
+
+    -- Add to ensure_installed if you want auto-install
+    opts.ensure_installed = opts.ensure_installed or {}
+    vim.list_extend(opts.ensure_installed, {
       "lua",
       "vim",
-      -- add more arguments for adding more treesitter parsers
-    },
+      "go",
+      -- "cadence", -- Uncomment after running :TSInstall cadence manually first time
+    })
+  end,
   },
 }

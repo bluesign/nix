@@ -8,7 +8,6 @@ let
   configs = {
     qtile = "qtile";
     rofi = "rofi";
-    niri = "niri";
     fuzzel = "fuzzel";
     nvim = "nvim";
   };
@@ -17,6 +16,7 @@ in
   imports = [
     ../common
     ../../home/programs/alacritty.nix
+    ../../home/programs/niri.nix
   ];
 
   home = {
@@ -42,10 +42,17 @@ in
     neovim
     google-cloud-sdk
     go
-    golangci-lint
+    gopls
+    jq
+    (pkgs.callPackage ../../pkgs/golangci-lint { })
+    gnumake
+    cmake
+    pkg-config
+    file
     nil
     nixd
     nixpkgs-fmt
+    (python3.withPackages (ps: with ps; [ requests ]))
 
     # Apps
     google-chrome
@@ -55,5 +62,13 @@ in
   programs.git.settings = {
     user.name = "bluesign";
     user.email = "deniz@edincik.com";
+  };
+
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
+    };
   };
 }

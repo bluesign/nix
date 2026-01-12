@@ -15,7 +15,7 @@
   # Users enabled on this host
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "keyd" ];
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;
   };
