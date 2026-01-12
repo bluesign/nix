@@ -31,6 +31,16 @@
   # Enable firmware for audio codec
   hardware.enableAllFirmware = true;
 
+  # Intel graphics - hardware video acceleration for Moonlight
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver    # VAAPI driver for newer Intel (Broadwell+)
+      intel-vaapi-driver    # Older VAAPI driver (fallback)
+      vpl-gpu-rt            # Intel Quick Sync Video
+    ];
+  };
+
   # Use deep sleep (S3) instead of s2idle - more reliable on MacBooks
   boot.kernelParams = [ "mem_sleep_default=deep" ];
 
