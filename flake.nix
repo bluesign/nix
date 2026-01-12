@@ -14,7 +14,7 @@
       flake = false;
     };
     claude-code.url = "github:sadjow/claude-code-nix";
-    tree-sitter-cadence.url = "path:/home/bluesign/src/tree-sitter-cadence";
+    tree-sitter-cadence.url = "github:bluesign/tree-sitter-cadence";
     niri.url = "github:sodiboo/niri-flake";
   };
 
