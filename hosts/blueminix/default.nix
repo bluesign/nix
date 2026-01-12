@@ -30,6 +30,11 @@
     autoStart = true;
     capSysAdmin = true;  # Required for Wayland capture
     openFirewall = true;
+    settings = {
+      # Stream at bluebook's native resolution to avoid scaling artifacts
+      dd_resolution_option = "manual";
+      dd_manual_resolution = "2560x1600";
+    };
   };
 
   # uinput access for Sunshine virtual input devices
