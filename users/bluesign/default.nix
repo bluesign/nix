@@ -23,6 +23,8 @@ in
     username = "bluesign";
     homeDirectory = "/home/bluesign";
     stateVersion = "25.11";
+    enableNixpkgsReleaseCheck = false;
+    backupFileExtension = "hm-backup";  # Avoid "existing backup" conflicts
   };
 
   xdg.configFile = builtins.mapAttrs (name: subpath: {
