@@ -33,6 +33,7 @@
     xwayland-satellite
     alacritty
     niri
+    playerctl
     (pkgs.callPackage ../../pkgs/cosmic-ext-alt/default.nix { })
   ];
 

@@ -505,14 +505,17 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1768080209,
-        "narHash": "sha256-ZMDVYK+yHefN4/tRuG9bstlELFBhOxoTJmgaN0sB3tA=",
-        "path": "/home/bluesign/src/tree-sitter-cadence",
-        "type": "path"
+        "lastModified": 1767910231,
+        "narHash": "sha256-C41oe4emXoyfaYt6FXBFiCWWmML5ubcRS3x/kau7FEM=",
+        "owner": "bluesign",
+        "repo": "tree-sitter-cadence",
+        "rev": "adaf13d3c20c95ed408fb2d819b26e5c4d7fb228",
+        "type": "github"
       },
       "original": {
-        "path": "/home/bluesign/src/tree-sitter-cadence",
-        "type": "path"
+        "owner": "bluesign",
+        "repo": "tree-sitter-cadence",
+        "type": "github"
       }
     },
     "xwayland-satellite-stable": {

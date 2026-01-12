@@ -146,7 +146,7 @@
           action.spawn = [ "sh" "-c" "playerctl next" ];
         };
 
-        # Brightness controls
+        # Screen brightness controls
         "XF86MonBrightnessUp" = {
           allow-when-locked = true;
           action.spawn = [ "brightnessctl" "--class=backlight" "set" "+10%" ];
@@ -154,6 +154,16 @@
         "XF86MonBrightnessDown" = {
           allow-when-locked = true;
           action.spawn = [ "brightnessctl" "--class=backlight" "set" "10%-" ];
+        };
+
+        # Keyboard backlight controls (MacBook)
+        "XF86KbdBrightnessUp" = {
+          allow-when-locked = true;
+          action.spawn = [ "brightnessctl" "--class=leds" "set" "+10%" ];
+        };
+        "XF86KbdBrightnessDown" = {
+          allow-when-locked = true;
+          action.spawn = [ "brightnessctl" "--class=leds" "set" "10%-" ];
         };
 
         # Overview

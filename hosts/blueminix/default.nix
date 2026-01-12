@@ -11,9 +11,30 @@
 
   networking.hostName = "blueminix";
 
+  # NFS server for shared folder (Tailscale only)
+  services.nfs.server = {
+    enable = true;
+    exports = ''
+      /home/bluesign/shared  100.64.0.0/10(rw,sync,no_subtree_check,no_root_squash)
+    '';
+  };
+
+  # Open NFS ports for Tailscale interface
+  networking.firewall = {
+    trustedInterfaces = [ "tailscale0" ];
+  };
+
+  # Sunshine remote desktop server
+  services.sunshine = {
+    enable = true;
+    autoStart = true;
+    capSysAdmin = true;  # Required for Wayland capture
+    openFirewall = true;
+  };
+
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "keyd" ];
+    extraGroups = [ "wheel" "keyd" "input" ];  # input group for Sunshine
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;
   };

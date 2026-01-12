@@ -1,4 +1,4 @@
-# Host: bluebook
+# Host: bluebook (MacBook)
 # To add a new host, copy this file to hosts/<hostname>/default.nix
 { config, lib, pkgs, ... }:
 
@@ -11,6 +11,64 @@
   ];
 
   networking.hostName = "bluebook";
+
+  # Apple keyboard - make Fn keys work properly
+  # fnmode=1: F1-F12 are media keys, hold Fn for function keys (Apple default)
+  # fnmode=2: F1-F12 are function keys, hold Fn for media keys
+  # Audio: MacBookPro13,1 uses Cirrus Logic codec, needs specific model
+  boot.extraModprobeConfig = ''
+    options hid_apple fnmode=1
+    options snd-hda-intel model=mbp131
+  '';
+
+  # Enable firmware for audio codec
+  hardware.enableAllFirmware = true;
+
+  # Use deep sleep (S3) instead of s2idle - more reliable on MacBooks
+  boot.kernelParams = [ "mem_sleep_default=deep" ];
+
+  # Lid and power button behavior
+  services.logind = {
+    lidSwitch = "suspend";
+    lidSwitchExternalPower = "suspend";
+    powerKey = "suspend";
+  };
+
+  # Power management
+  services.power-profiles-daemon.enable = true;
+  services.thermald.enable = true;  # Intel thermal management
+
+  # SSD health - periodic TRIM
+  services.fstrim.enable = true;
+
+  # Thunderbolt support
+  services.hardware.bolt.enable = true;
+
+  # FaceTime HD camera firmware
+  hardware.facetimehd.enable = true;
+
+  # Keyboard backlight support + power tools
+  environment.systemPackages = with pkgs; [
+    brightnessctl
+    powertop  # Battery diagnostics
+    moonlight-qt  # Remote desktop client for Sunshine
+  ];
+
+  # Mount shared folder from blueminix via Tailscale
+  # Uses automount - mounts on access, doesn't block boot if unavailable
+  fileSystems."/home/bluesign/shared" = {
+    device = "blueminix:/home/bluesign/shared";
+    fsType = "nfs";
+    options = [
+      "x-systemd.automount"   # Mount on first access
+      "x-systemd.idle-timeout=300"  # Unmount after 5min idle
+      "x-systemd.mount-timeout=10"  # Don't wait long if unavailable
+      "noauto"                # Don't mount at boot
+      "nofail"                # Don't fail boot if unavailable
+      "soft"                  # Return errors instead of hanging
+      "timeo=30"              # 3 second timeout for operations
+    ];
+  };
 
   # Users enabled on this host
   users.users.bluesign = {

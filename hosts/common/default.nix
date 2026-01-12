@@ -46,7 +46,11 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
   };
+
+  # Tailscale VPN
+  services.tailscale.enable = true;
 
   # Bluetooth
   hardware.bluetooth = {
