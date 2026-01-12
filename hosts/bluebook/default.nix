@@ -25,6 +25,16 @@
     (config.boot.kernelPackages.callPackage ../../pkgs/snd-hda-macbookpro { })
   ];
 
+  # Preload sound modules at boot for reliable audio initialization
+  boot.kernelModules = [
+    "snd"              # ALSA core
+    "snd_pcm"          # PCM support
+    "snd_hwdep"        # Hardware dependent layer
+    "snd_seq"          # MIDI sequencer
+    "snd_hda_intel"    # Intel HDA controller
+    "snd_hda_codec_cs8409"  # CS8409 codec (custom MacBook driver)
+  ];
+
   # Enable firmware for audio codec
   hardware.enableAllFirmware = true;
 
@@ -51,6 +61,17 @@
   # Power management
   services.power-profiles-daemon.enable = true;
   services.thermald.enable = true;  # Intel thermal management
+
+  # Ensure Bluetooth is unblocked at boot (rfkill can persist soft-block state)
+  systemd.services.bluetooth-unblock = {
+    description = "Unblock Bluetooth at boot";
+    wantedBy = [ "bluetooth.service" ];
+    before = [ "bluetooth.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.util-linux}/bin/rfkill unblock bluetooth";
+    };
+  };
 
   # SSD health - periodic TRIM
   services.fstrim.enable = true;

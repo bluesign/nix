@@ -15,11 +15,19 @@
 
     # Utils
     gh
+    xdg-utils
   ];
 
   programs.git.enable = true;
   programs.gh = {
     enable = true;
     gitCredentialHelper.enable = true;
+  };
+
+  programs.bash = {
+    enable = true;
+    shellAliases = {
+      open = "xdg-open";
+    };
   };
 }

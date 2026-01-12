@@ -1,11 +1,7 @@
-# Desktop environment module (COSMIC + Niri)
+# Desktop environment module (Niri + Ags)
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    ./cosmic-on-niri.nix
-  ];
-
   programs.firefox.enable = true;
   programs.niri.enable = true;
   programs.xwayland.enable = true;
@@ -27,15 +23,22 @@
   services.displayManager.ly.enable = true;
   systemd.services.display-manager.environment.XDG_CURRENT_DESKTOP = "X-NIXOS-SYSTEMD-AWARE";
 
-  services.desktopManager.cosmic.enable = true;
-
   environment.systemPackages = with pkgs; [
     xwayland-satellite
     alacritty
     niri
     playerctl
-    (pkgs.callPackage ../../pkgs/cosmic-ext-alt/default.nix { })
+    brightnessctl
+    networkmanagerapplet  # For network management
+    bluez-tools           # For bluetooth
+    swaylock              # Screen locker
+    swayidle              # Idle management
+    swaybg                # Wallpaper
   ];
+
+  # Enable bluetooth
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
 
   xdg.autostart.enable = true;
   xdg.portal = {
@@ -43,7 +46,6 @@
     extraPortals = with pkgs; [
       xdg-desktop-portal
       xdg-desktop-portal-gtk
-      xdg-desktop-portal-cosmic
     ];
     config = {
       common = {

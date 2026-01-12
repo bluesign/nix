@@ -64,10 +64,9 @@
       spawn-at-startup = [
         { command = [ "systemctl" "--user" "import-environment" ]; }
         { command = [ "systemctl" "--user" "start" "nixos-fake-graphical-session.target" ]; }
+        { command = [ "systemctl" "--user" "start" "pipewire.service" "wireplumber.service" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gtk.service" ]; }
-        # Wait for PipeWire before starting COSMIC components to avoid busy-loop bug
-        # See: https://github.com/pop-os/cosmic-osd/issues/70
-        { command = [ "sh" "-c" "systemctl --user start pipewire.service pipewire-pulse.service && cosmic-ext-alternative-startup" ]; }
+        { command = [ "swaybg" "-i" "/home/bluesign/shared/wallpaper.jpeg" "-m" "fill" ]; }
       ];
 
       prefer-no-csd = true;
@@ -112,22 +111,22 @@
           action.spawn = [ "sh" "-c" "pkill orca || exec orca" ];
         };
 
-        # Volume controls
+        # Volume controls (with swayosd popup)
         "XF86AudioRaiseVolume" = {
           allow-when-locked = true;
-          action.spawn = [ "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0" ];
+          action.spawn = [ "swayosd-client" "--output-volume" "raise" ];
         };
         "XF86AudioLowerVolume" = {
           allow-when-locked = true;
-          action.spawn = [ "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-" ];
+          action.spawn = [ "swayosd-client" "--output-volume" "lower" ];
         };
         "XF86AudioMute" = {
           allow-when-locked = true;
-          action.spawn = [ "sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle" ];
+          action.spawn = [ "swayosd-client" "--output-volume" "mute-toggle" ];
         };
         "XF86AudioMicMute" = {
           allow-when-locked = true;
-          action.spawn = [ "sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle" ];
+          action.spawn = [ "swayosd-client" "--input-volume" "mute-toggle" ];
         };
 
         # Media controls
@@ -148,14 +147,14 @@
           action.spawn = [ "sh" "-c" "playerctl next" ];
         };
 
-        # Screen brightness controls
+        # Screen brightness controls (with swayosd popup)
         "XF86MonBrightnessUp" = {
           allow-when-locked = true;
-          action.spawn = [ "brightnessctl" "--class=backlight" "set" "+10%" ];
+          action.spawn = [ "swayosd-client" "--brightness" "raise" ];
         };
         "XF86MonBrightnessDown" = {
           allow-when-locked = true;
-          action.spawn = [ "brightnessctl" "--class=backlight" "set" "10%-" ];
+          action.spawn = [ "swayosd-client" "--brightness" "lower" ];
         };
 
         # Keyboard backlight controls (MacBook)

@@ -17,6 +17,7 @@ in
     ../common
     ../../home/programs/alacritty.nix
     ../../home/programs/niri.nix
+    ../../home/programs/waybar.nix
   ];
 
   home = {
@@ -41,6 +42,7 @@ in
     fuzzel
     bluetuith
     claude-code
+    nemo
 
     # Dev
     neovim
@@ -75,4 +77,5 @@ in
       package = pkgs.gnome-themes-extra;
     };
   };
+
 }
