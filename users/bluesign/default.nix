@@ -23,6 +23,10 @@ in
     username = "bluesign";
     homeDirectory = "/home/bluesign";
     stateVersion = "25.11";
+    # Clean up old backup files before activation to prevent "would be clobbered" errors
+    activation.cleanupBackups = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+      find ~/.config -name "*.hm-backup" -delete 2>/dev/null || true
+    '';
   };
 
   xdg.configFile = builtins.mapAttrs (name: subpath: {
