@@ -29,8 +29,6 @@
     niri
     playerctl
     brightnessctl
-    networkmanagerapplet  # For network management
-    bluez-tools           # For bluetooth
     swaylock              # Screen locker
     swayidle              # Idle management
     swaybg                # Wallpaper

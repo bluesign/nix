@@ -17,7 +17,7 @@ in
     ../common
     ../../home/programs/alacritty.nix
     ../../home/programs/niri.nix
-    ../../home/programs/waybar.nix
+    ../../home/programs/dms.nix
     ../../home/programs/tmux.nix
   ];
 

@@ -86,6 +86,8 @@
   environment.systemPackages = with pkgs; [
     brightnessctl
     powertop  # Battery diagnostics
+    lm_sensors  # Temperature monitoring (run: sensors)
+    s-tui  # Stress test + monitoring TUI
     moonlight-qt  # Remote desktop client for Sunshine
   ];
 

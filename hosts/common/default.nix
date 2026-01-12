@@ -32,6 +32,7 @@
     wget
     git
     fzf
+    htop
     overskride
   ];
 
@@ -51,6 +52,9 @@
 
   # Tailscale VPN
   services.tailscale.enable = true;
+
+  # Power management (required for battery monitoring)
+  services.upower.enable = true;
 
   # Bluetooth
   hardware.bluetooth = {
