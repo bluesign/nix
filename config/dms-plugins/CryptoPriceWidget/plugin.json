@@ -1,0 +1,13 @@
+{
+    "id": "cryptoPriceWidget",
+    "name": "Crypto Price Widget",
+    "description": "Display Bitcoin and Flow prices in the bar",
+    "version": "1.0.0",
+    "author": "bluesign",
+    "type": "widget",
+    "capabilities": ["dankbar-widget"],
+    "component": "./CryptoPriceWidget.qml",
+    "icon": "currency_bitcoin",
+    "requires": ["curl", "jq"],
+    "permissions": []
+}

@@ -6,6 +6,11 @@
     systemd.enable = true;
     systemd.restartIfChanged = true;
 
+    plugins.cryptoPriceWidget = {
+      enable = true;
+      src = ../../config/dms-plugins/CryptoPriceWidget;
+    };
+
     default.settings = {
       currentThemeName = "dynamic";
       customThemeFile = "";
@@ -229,6 +234,7 @@
             "clipboard"
             "cpuUsage"
             "memUsage"
+            "plugin:cryptoPriceWidget"
             "notificationButton"
             "battery"
             "controlCenterButton"
