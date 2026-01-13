@@ -12,146 +12,173 @@ PluginComponent {
     property string flowPrice: "..."
     property bool loading: true
 
-    // Fetch prices on startup and every 60 seconds
     Timer {
         id: refreshTimer
         interval: 60000
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: fetchPrices()
-    }
-
-    function fetchPrices() {
-        priceProcess.running = true
+        onTriggered: {
+            if (!priceProcess.running) {
+                priceProcess.running = true
+            }
+        }
     }
 
     Process {
         id: priceProcess
-        command: ["sh", "-c", "curl -s 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,flow&vs_currencies=usd' | jq -r '.bitcoin.usd, .flow.usd'"]
+        command: ["curl", "-sS", "--fail", "--connect-timeout", "5", "--max-time", "10",
+                  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,flow&vs_currencies=usd"]
         stdout: SplitParser {
+            splitMarker: ""
             onRead: data => {
-                const lines = data.trim().split('\n')
-                if (lines.length >= 2) {
-                    const btc = parseFloat(lines[0])
-                    const flow = parseFloat(lines[1])
-                    root.btcPrice = btc >= 1000 ? Math.round(btc).toLocaleString() : btc.toFixed(2)
-                    root.flowPrice = flow >= 1 ? flow.toFixed(2) : flow.toFixed(4)
+                try {
+                    const json = JSON.parse(data)
+                    if (json.bitcoin && json.bitcoin.usd) {
+                        const btc = json.bitcoin.usd
+                        root.btcPrice = btc >= 1000 ? Math.round(btc).toLocaleString() : btc.toFixed(2)
+                    }
+                    if (json.flow && json.flow.usd) {
+                        const flow = json.flow.usd
+                        root.flowPrice = flow >= 1 ? flow.toFixed(2) : flow.toFixed(4)
+                    }
                     root.loading = false
+                } catch (e) {
+                    console.log("CryptoPriceWidget: Failed to parse response: " + e)
                 }
             }
         }
     }
 
     horizontalBarPill: Component {
-        StyledRect {
-            id: pill
-            width: priceRow.implicitWidth + Theme.spacingM * 2
-            height: parent.widgetThickness
-            radius: Theme.cornerRadius
-            color: Theme.surfaceContainerHigh
+        Item {
+            implicitWidth: pillRect.width
+            implicitHeight: parent.widgetThickness
 
-            Row {
-                id: priceRow
-                anchors.centerIn: parent
-                spacing: Theme.spacingM
+            StyledRect {
+                id: pillRect
+                width: priceRow.implicitWidth + Theme.spacingM * 2
+                height: parent.height
+                radius: Theme.cornerRadius
+                color: Theme.surfaceContainerHigh
 
-                // Bitcoin
                 Row {
-                    spacing: Theme.spacingXS
-                    DankIcon {
-                        name: "currency_bitcoin"
-                        size: Theme.fontSizeMedium
-                        color: "#F7931A"
+                    id: priceRow
+                    anchors.centerIn: parent
+                    spacing: Theme.spacingS
+
+                    Row {
+                        spacing: Theme.spacingXS
                         anchors.verticalCenter: parent.verticalCenter
+                        DankIcon {
+                            name: "currency_bitcoin"
+                            size: Theme.fontSizeMedium
+                            color: "#F7931A"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        StyledText {
+                            text: root.loading ? "..." : "$" + root.btcPrice
+                            color: Theme.surfaceText
+                            font.pixelSize: Theme.fontSizeSmall
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
+
                     StyledText {
-                        text: root.loading ? "..." : "$" + root.btcPrice
-                        color: Theme.surfaceText
+                        text: "|"
+                        color: Theme.surfaceTextMuted
                         font.pixelSize: Theme.fontSizeSmall
                         anchors.verticalCenter: parent.verticalCenter
                     }
-                }
 
-                // Separator
-                StyledText {
-                    text: "|"
-                    color: Theme.surfaceTextMuted
-                    font.pixelSize: Theme.fontSizeSmall
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                // Flow
-                Row {
-                    spacing: Theme.spacingXS
-                    StyledText {
-                        text: "FLOW"
-                        color: "#00EF8B"
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
+                    Row {
+                        spacing: Theme.spacingXS
                         anchors.verticalCenter: parent.verticalCenter
-                    }
-                    StyledText {
-                        text: root.loading ? "..." : "$" + root.flowPrice
-                        color: Theme.surfaceText
-                        font.pixelSize: Theme.fontSizeSmall
-                        anchors.verticalCenter: parent.verticalCenter
+                        StyledText {
+                            text: "FLOW"
+                            color: "#00EF8B"
+                            font.pixelSize: Theme.fontSizeSmall
+                            font.bold: true
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        StyledText {
+                            text: root.loading ? "..." : "$" + root.flowPrice
+                            color: Theme.surfaceText
+                            font.pixelSize: Theme.fontSizeSmall
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                 }
-            }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: refreshTimer.triggered()
-                cursorShape: Qt.PointingHandCursor
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (!priceProcess.running) {
+                            root.loading = true
+                            priceProcess.running = true
+                        }
+                    }
+                    cursorShape: Qt.PointingHandCursor
+                }
             }
         }
     }
 
     verticalBarPill: Component {
-        StyledRect {
-            width: parent.widgetThickness
-            height: priceCol.implicitHeight + Theme.spacingM * 2
-            radius: Theme.cornerRadius
-            color: Theme.surfaceContainerHigh
+        Item {
+            implicitWidth: parent.widgetThickness
+            implicitHeight: pillRectV.height
 
-            Column {
-                id: priceCol
-                anchors.centerIn: parent
-                spacing: Theme.spacingXS
+            StyledRect {
+                id: pillRectV
+                width: parent.width
+                height: priceCol.implicitHeight + Theme.spacingM * 2
+                radius: Theme.cornerRadius
+                color: Theme.surfaceContainerHigh
 
-                StyledText {
-                    text: "BTC"
-                    color: "#F7931A"
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                StyledText {
-                    text: root.loading ? "..." : "$" + root.btcPrice
-                    color: Theme.surfaceText
-                    font.pixelSize: Theme.fontSizeSmall
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                StyledText {
-                    text: "FLOW"
-                    color: "#00EF8B"
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                StyledText {
-                    text: root.loading ? "..." : "$" + root.flowPrice
-                    color: Theme.surfaceText
-                    font.pixelSize: Theme.fontSizeSmall
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
+                Column {
+                    id: priceCol
+                    anchors.centerIn: parent
+                    spacing: Theme.spacingXS
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: refreshTimer.triggered()
-                cursorShape: Qt.PointingHandCursor
+                    StyledText {
+                        text: "BTC"
+                        color: "#F7931A"
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    StyledText {
+                        text: root.loading ? "..." : "$" + root.btcPrice
+                        color: Theme.surfaceText
+                        font.pixelSize: Theme.fontSizeSmall
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    StyledText {
+                        text: "FLOW"
+                        color: "#00EF8B"
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    StyledText {
+                        text: root.loading ? "..." : "$" + root.flowPrice
+                        color: Theme.surfaceText
+                        font.pixelSize: Theme.fontSizeSmall
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (!priceProcess.running) {
+                            root.loading = true
+                            priceProcess.running = true
+                        }
+                    }
+                    cursorShape: Qt.PointingHandCursor
+                }
             }
         }
     }
