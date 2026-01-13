@@ -28,6 +28,17 @@
     enable = true;
     shellAliases = {
       open = "xdg-open";
+      icat = "kitty +kitten icat";
+      img = "chafa -f kitty";
+    };
+  };
+
+  programs.zsh = {
+    enable = true;
+    shellAliases = {
+      open = "xdg-open";
+      icat = "kitty +kitten icat";
+      img = "chafa -f kitty";
     };
   };
 }

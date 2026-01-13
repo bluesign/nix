@@ -1,0 +1,27 @@
+{ config, lib, pkgs, ... }: {
+  programs.kitty = {
+    enable = true;
+    settings = {
+      # Font
+      font_size = 12;
+
+      # Graphics
+      allow_remote_control = "yes";
+
+      # Scrollback
+      scrollback_lines = 10000;
+
+      # Window
+      window_padding_width = 4;
+      confirm_os_window_close = 0;
+
+      # URLs
+      url_style = "curly";
+      open_url_with = "default";
+
+      # Bell
+      enable_audio_bell = false;
+      visual_bell_duration = 0;
+    };
+  };
+}

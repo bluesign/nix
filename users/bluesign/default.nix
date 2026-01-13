@@ -16,6 +16,7 @@ in
   imports = [
     ../common
     ../../home/programs/alacritty.nix
+    ../../home/programs/kitty.nix
     ../../home/programs/niri.nix
     ../../home/programs/dms.nix
     ../../home/programs/tmux.nix
@@ -44,6 +45,9 @@ in
     bluetuith
     claude-code
     nemo
+    grim          # Wayland screenshot tool
+    slurp         # Area selection for Wayland
+    swappy        # GUI annotation tool
 
     # Dev
     neovim
@@ -64,6 +68,15 @@ in
     # Apps
     google-chrome
     discord-ptb
+    chawan        # Terminal web browser
+
+    # Sixel graphics
+    libsixel      # img2sixel - convert images to sixel
+    chafa         # Image viewer with sixel support
+
+    # Voice input
+    wtype  # Wayland text input
+    (pkgs.callPackage ../../pkgs/whisper-input { })
   ];
 
   programs.git.settings = {

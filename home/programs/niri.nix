@@ -94,8 +94,8 @@
 
         # Applications
         "Mod+T" = {
-          action.spawn = "alacritty";
-          hotkey-overlay.title = "Open a Terminal: alacritty";
+          action.spawn = "kitty";
+          hotkey-overlay.title = "Open a Terminal: kitty";
         };
         "Mod+D" = {
           action.spawn = "fuzzel";
@@ -332,10 +332,16 @@
         # Tabbed mode
         "Mod+W".action.toggle-column-tabbed-display = [];
 
-        # Screenshots
+        # Screenshots (niri built-in)
         "Print".action.screenshot = [];
         "Ctrl+Print".action.screenshot-screen = [];
         "Alt+Print".action.screenshot-window = [];
+
+        # Screenshot with annotation GUI (grim + slurp + swappy)
+        "Shift+Print" = {
+          action.spawn = [ "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -" ];
+          hotkey-overlay.title = "Screenshot with annotation";
+        };
 
         # Keyboard shortcuts inhibit toggle
         "Mod+Escape" = {
