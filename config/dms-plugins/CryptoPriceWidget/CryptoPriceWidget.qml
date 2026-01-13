@@ -94,11 +94,10 @@ PluginComponent {
                     Row {
                         spacing: Theme.spacingXS
                         anchors.verticalCenter: parent.verticalCenter
-                        StyledText {
-                            text: "FLOW"
+                        DankIcon {
+                            name: "diamond"
+                            size: Theme.fontSizeMedium
                             color: "#00EF8B"
-                            font.pixelSize: Theme.fontSizeSmall
-                            font.bold: true
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         StyledText {
@@ -154,11 +153,10 @@ PluginComponent {
                         font.pixelSize: Theme.fontSizeSmall
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
-                    StyledText {
-                        text: "FLOW"
+                    DankIcon {
+                        name: "diamond"
+                        size: Theme.fontSizeMedium
                         color: "#00EF8B"
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     StyledText {
