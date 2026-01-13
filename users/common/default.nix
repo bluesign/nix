@@ -39,6 +39,15 @@
       open = "xdg-open";
       icat = "kitty +kitten icat";
       img = "chafa -f kitty";
+      vim = "nvim";
+    };
+    history = {
+      size = 100000;
+      save = 100000;
+      share = true;          # Share history between sessions live
+      ignoreDups = true;     # Don't store duplicate commands
+      ignoreSpace = true;    # Don't store commands starting with space
+      extended = true;       # Save timestamps
     };
   };
 }

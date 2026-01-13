@@ -10,6 +10,8 @@ let
     rofi = "rofi";
     fuzzel = "fuzzel";
     nvim = "nvim";
+    chawan = "chawan";
+    nchat = "nchat";
   };
 in
 {
@@ -30,6 +32,9 @@ in
     activation.cleanupBackups = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
       find ~/.config -name "*.hm-backup" -delete 2>/dev/null || true
     '';
+    sessionVariables = {
+      NCHAT_IMAGES = "1";  # Enable kitty image support in nchat
+    };
   };
 
   xdg.configFile = builtins.mapAttrs (name: subpath: {
@@ -51,6 +56,7 @@ in
 
     # Dev
     neovim
+    sqlite
     google-cloud-sdk
     go
     gopls
@@ -63,12 +69,13 @@ in
     nil
     nixd
     nixpkgs-fmt
-    (python3.withPackages (ps: with ps; [ requests ]))
+    (python3.withPackages (ps: with ps; [ requests pypdf reportlab ]))
 
     # Apps
     google-chrome
     discord-ptb
     chawan        # Terminal web browser
+    nchat         # Terminal WhatsApp/Telegram client
 
     # Sixel graphics
     libsixel      # img2sixel - convert images to sixel

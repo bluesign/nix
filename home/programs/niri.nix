@@ -172,6 +172,8 @@
           repeat = false;
           action.toggle-overview = [];
         };
+        # Note: "Mod" with trigger=on-release for cancel-overview is not supported
+        # by home-manager niri module yet
 
         # Close window
         "Mod+Q" = {

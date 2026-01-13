@@ -1,6 +1,11 @@
 { config, lib, pkgs, ... }: {
+  home.sessionVariables = {
+    KITTY_INSTALLATION_DIR = "${pkgs.kitty}/lib/kitty";
+  };
+
   programs.kitty = {
     enable = true;
+    shellIntegration.enableZshIntegration = true;
     settings = {
       # Font
       font_size = 12;
