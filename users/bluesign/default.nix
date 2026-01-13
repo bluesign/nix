@@ -33,6 +33,7 @@ in
       find ~/.config -name "*.hm-backup" -delete 2>/dev/null || true
     '';
     sessionVariables = {
+      EDITOR = "nvim";
       NCHAT_IMAGES = "1";  # Enable kitty image support in nchat
     };
   };
