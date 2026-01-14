@@ -89,9 +89,6 @@ in
     libsixel      # img2sixel - convert images to sixel
     chafa         # Image viewer with sixel support
 
-    # Voice input
-    wtype  # Wayland text input
-    (pkgs.callPackage ../../pkgs/whisper-input { })
   ];
 
   programs.git.settings = {
