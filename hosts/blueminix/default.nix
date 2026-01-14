@@ -11,15 +11,16 @@
 
   networking.hostName = "blueminix";
 
-  # WirePlumber config for EliteMini (no internal speakers)
-  # Enable HDMI audio auto-profile since this mini PC only has HDMI and headphone jack
+  # WirePlumber config for EliteMini (no internal speakers, headphone jack only)
+  # Set the ALC269VC analog output as default audio sink
   services.pipewire.wireplumber.extraConfig."50-blueminix-audio" = {
     "monitor.alsa.rules" = [
       {
-        matches = [{ "device.name" = "alsa_card.pci-0000_c4_00.1"; }];
+        matches = [{ "device.name" = "alsa_card.pci-0000_c4_00.6"; }];
         actions.update-props = {
-          "api.acp.auto-profile" = true;
-          "api.acp.auto-port" = true;
+          # Higher priority to be selected as default
+          "priority.driver" = 2000;
+          "priority.session" = 2000;
         };
       }
     ];
@@ -59,6 +60,22 @@
     KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
   '';
   boot.kernelModules = [ "uinput" ];
+
+  # Fix headphone jack detection for ALC269VC codec
+  boot.extraModprobeConfig = ''
+    options snd-hda-intel model=,dell-headset-multi patch=,/etc/hda-jack-fix.fw
+  '';
+
+  # HDA patch to force headphone output on ALC269VC
+  # - Disable jack detection so headphones are always available
+  # - Pin 0x15 is the headphone output
+  environment.etc."hda-jack-fix.fw".text = ''
+    [codec]
+    0x10ec0269 0x1f4cb016 0
+
+    [hint]
+    jack_detect = no
+  '';
   hardware.uinput.enable = true;  # Creates uinput group and sets up permissions
 
   users.users.bluesign = {

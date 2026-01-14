@@ -8,7 +8,7 @@
     shellIntegration.enableZshIntegration = true;
     settings = {
       # Font
-      font_size = 12;
+      font_size = 11;
 
       # Graphics
       allow_remote_control = "yes";
@@ -27,6 +27,13 @@
       # Bell
       enable_audio_bell = false;
       visual_bell_duration = 0;
+    };
+
+    keybindings = {
+      "ctrl+shift+equal" = "change_font_size all +1.0";
+      "ctrl+shift+plus" = "change_font_size all +1.0";
+      "ctrl+shift+minus" = "change_font_size all -1.0";
+      "ctrl+shift+backspace" = "change_font_size all 0";
     };
   };
 }

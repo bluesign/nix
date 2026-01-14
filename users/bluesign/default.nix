@@ -57,6 +57,7 @@ in
 
     # Dev
     neovim
+    gemini-cli
     sqlite
     google-cloud-sdk
     go
@@ -75,8 +76,14 @@ in
     # Apps
     google-chrome
     discord-ptb
+    ytui-music    # YouTube Music TUI player
     chawan        # Terminal web browser
     nchat         # Terminal WhatsApp/Telegram client
+    aerc          # Terminal email client
+
+    # Media
+    mpv           # Video player (includes libmpv)
+    yt-dlp        # YouTube downloader (maintained fork of youtube-dl)
 
     # Sixel graphics
     libsixel      # img2sixel - convert images to sixel
