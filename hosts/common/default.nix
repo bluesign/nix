@@ -53,6 +53,9 @@
   # Tailscale VPN
   services.tailscale.enable = true;
 
+  # SSH server
+  services.openssh.enable = true;
+
   # Power management (required for battery monitoring)
   services.upower.enable = true;
 
