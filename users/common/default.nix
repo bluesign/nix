@@ -40,6 +40,7 @@
       icat = "kitty +kitten icat";
       img = "chafa -f kitty";
       vim = "nvim";
+      y = "yazi";
     };
     history = {
       size = 100000;

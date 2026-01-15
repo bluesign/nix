@@ -54,6 +54,8 @@ in
     grim          # Wayland screenshot tool
     slurp         # Area selection for Wayland
     swappy        # GUI annotation tool
+    wl-clipboard  # Wayland clipboard (wl-copy, wl-paste)
+    yazi          # Terminal file manager with image preview
 
     # Dev
     neovim
@@ -63,6 +65,9 @@ in
     go
     gopls
     jq
+    delta         # Beautiful git diffs
+    difftastic    # Structural diff tool
+    gh-dash       # GitHub dashboard TUI
     (pkgs.callPackage ../../pkgs/golangci-lint { })
     gnumake
     cmake
@@ -94,6 +99,15 @@ in
   programs.git.settings = {
     user.name = "bluesign";
     user.email = "deniz@edincik.com";
+  };
+
+  programs.git.delta = {
+    enable = true;
+    options = {
+      navigate = true;
+      side-by-side = true;
+      line-numbers = true;
+    };
   };
 
 }
