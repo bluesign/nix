@@ -16,13 +16,15 @@
     claude-code.url = "github:sadjow/claude-code-nix";
     tree-sitter-cadence.url = "github:bluesign/tree-sitter-cadence";
     niri.url = "github:sodiboo/niri-flake";
+    nfsm.url = "github:gvolpe/nfsm";
+    niri-float-sticky.url = "github:probeldev/niri-float-sticky";
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, tree-sitter-cadence, niri, dms, ... }:
+  outputs = { self, nixpkgs, home-manager, claude-code, tree-sitter-cadence, niri, nfsm, dms, ... }@inputs:
     let
       # Helper function to create a host configuration
       mkHost = { hostname, system ? "x86_64-linux", users ? [ ] }:
@@ -42,7 +44,8 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                sharedModules = [ niri.homeModules.niri dms.homeModules.dankMaterialShell.default ];
+                extraSpecialArgs = { inherit inputs; };
+                sharedModules = [ niri.homeModules.niri nfsm.homeModules.default dms.homeModules.dankMaterialShell.default ];
                 users = builtins.listToAttrs (map (user: {
                   name = user;
                   value = import ./users/${user};

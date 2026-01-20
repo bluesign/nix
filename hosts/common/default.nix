@@ -40,6 +40,9 @@
   services.dbus.enable = true;
   services.dbus.implementation = "broker";
 
+  # Sudo without password for wheel group
+  security.sudo.wheelNeedsPassword = false;
+
   # Audio
   security.rtkit.enable = true;
   services.pipewire = {

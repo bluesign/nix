@@ -42,13 +42,16 @@
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
-      xdg-desktop-portal
       xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
     ];
     config = {
       common = {
         default = [ "gtk" ];
         "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        # Use GNOME portal for screen sharing (niri implements org.gnome.Mutter.ScreenCast)
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
       };
     };
   };

@@ -1,10 +1,20 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
+  home.packages = [
+    inputs.niri-float-sticky.packages.${pkgs.system}.default
+  ];
+
+  services.nfsm = {
+    enable = true;
+    package = inputs.nfsm.packages.${pkgs.system}.nfsm;
+    enableCli = true;
+  };
+
   programs.niri = {
     enable = true;
-    # Use nixpkgs niri instead of building from niri-flake
-    package = pkgs.niri;
+    # Use niri-flake for latest features (like set-window-opacity)
+    package = inputs.niri.packages.${pkgs.system}.niri-unstable;
 
     settings = {
       input = {
@@ -65,11 +75,12 @@
         { command = [ "systemctl" "--user" "import-environment" ]; }
         { command = [ "systemctl" "--user" "start" "nixos-fake-graphical-session.target" ]; }
         { command = [ "systemctl" "--user" "start" "pipewire.service" "wireplumber.service" ]; }
-        { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gtk.service" ]; }
+        { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gtk.service" "xdg-desktop-portal-gnome.service" ]; }
         { command = [ "swaybg" "-i" "/home/bluesign/shared/wallpaper.jpeg" "-m" "fill" ]; }
+        { command = [ "niri-float-sticky" ]; }
       ];
 
-      prefer-no-csd = true;
+      prefer-no-csd = false;
 
       hotkey-overlay = {};
 
@@ -85,6 +96,14 @@
         {
           matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
           open-floating = true;
+        }
+        {
+          matches = [{ app-id = "^mpv$"; }];
+          open-floating = true;
+        }
+        {
+          # Default opacity for all windows (toggled with Mod+Shift+O)
+          opacity = 0.85;
         }
       ];
 
@@ -313,7 +332,7 @@
         "Mod+R".action.switch-preset-column-width = [];
         "Mod+Shift+R".action.switch-preset-window-height = [];
         "Mod+Ctrl+R".action.reset-window-height = [];
-        "Mod+F".action.fullscreen-window = [];  # Toggle maximize/restore
+        "Mod+F".action.spawn = "nfsm-cli";  # Toggle fullscreen via nfsm
         "Mod+Shift+F".action.maximize-column = [];
         "Mod+Ctrl+F".action.expand-column-to-available-width = [];
 
@@ -330,6 +349,9 @@
         # Floating
         "Mod+V".action.toggle-window-floating = [];
         "Mod+Shift+V".action.switch-focus-between-floating-and-tiling = [];
+
+        # Toggle window opacity (toggles the opacity rule on/off)
+        "Mod+Shift+O".action.toggle-window-rule-opacity = [];
 
         # Tabbed mode
         "Mod+W".action.toggle-column-tabbed-display = [];

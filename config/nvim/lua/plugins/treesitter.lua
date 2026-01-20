@@ -11,28 +11,36 @@ return {
     },
   },
   {
-  "nvim-treesitter/nvim-treesitter",
-  opts = function(_, opts)
-    -- Register Cadence parser
-    local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-    parser_config.cadence = {
-      install_info = {
-        url = vim.env.TREE_SITTER_CADENCE_PATH or "/home/bluesign/src/tree-sitter-cadence",
-        files = { "parser/parser.c", "parser/scanner.c" },
-        generate_requires_npm = false,
-        requires_generate_from_grammar = false,
-      },
-      filetype = "cadence",
-    }
+    "nvim-treesitter/nvim-treesitter",
+    init = function()
+      -- Use pre-compiled Cadence parser from nix
+      local cadence_pkg = vim.env.TREE_SITTER_CADENCE_PATH
+      if cadence_pkg and cadence_pkg ~= "" then
+        local parser_dir = vim.fn.stdpath("data") .. "/site/parser"
+        local parser_dest = parser_dir .. "/cadence.so"
+        local parser_src = cadence_pkg .. "/lib/cadence.so"
 
-    -- Add to ensure_installed if you want auto-install
-    opts.ensure_installed = opts.ensure_installed or {}
-    vim.list_extend(opts.ensure_installed, {
-      "lua",
-      "vim",
-      "go",
-      -- "cadence", -- Uncomment after running :TSInstall cadence manually first time
-    })
-  end,
+        -- Create parser directory if needed
+        vim.fn.mkdir(parser_dir, "p")
+
+        -- Symlink pre-compiled parser if not exists or broken
+        if vim.fn.filereadable(parser_dest) == 0 then
+          if vim.fn.filereadable(parser_src) == 1 then
+            vim.fn.system({ "ln", "-sf", parser_src, parser_dest })
+          end
+        end
+      end
+
+      -- Register filetype mapping
+      vim.treesitter.language.register("cadence", "cadence")
+    end,
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, {
+        "lua",
+        "vim",
+        "go",
+      })
+    end,
   },
 }
