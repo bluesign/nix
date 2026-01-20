@@ -102,8 +102,14 @@
           open-floating = true;
         }
         {
-          # Default opacity for all windows (toggled with Mod+Shift+O)
-          opacity = 0.85;
+          # Focused windows fully opaque
+          matches = [{ is-focused = true; }];
+          opacity = 1.0;
+        }
+        {
+          # Unfocused windows semi-transparent
+          matches = [{ is-focused = false; }];
+          opacity = 0.80;
         }
       ];
 
