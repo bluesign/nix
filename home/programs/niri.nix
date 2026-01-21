@@ -17,6 +17,12 @@
     package = inputs.niri.packages.${pkgs.system}.niri-unstable;
 
     settings = {
+      outputs = {
+        "DP-3" = {
+          scale = 1.4;
+        };
+      };
+
       input = {
         keyboard = {
           xkb = {};
