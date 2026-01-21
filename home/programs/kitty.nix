@@ -31,6 +31,8 @@
     };
 
     keybindings = {
+      "ctrl+c" = "copy_or_interrupt";
+      "ctrl+v" = "paste_from_clipboard";
       "ctrl+shift+equal" = "change_font_size all +1.0";
       "ctrl+shift+plus" = "change_font_size all +1.0";
       "ctrl+shift+minus" = "change_font_size all -1.0";
