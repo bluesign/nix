@@ -69,6 +69,7 @@ in
     difftastic    # Structural diff tool
     gh-dash       # GitHub dashboard TUI
     (pkgs.callPackage ../../pkgs/golangci-lint { })
+    (pkgs.callPackage ../../pkgs/putio { })
     gnumake
     cmake
     pkg-config
