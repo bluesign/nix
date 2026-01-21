@@ -35,6 +35,8 @@
 
   programs.zsh = {
     enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
     shellAliases = {
       open = "xdg-open";
       icat = "kitty +kitten icat";
@@ -50,5 +52,21 @@
       ignoreSpace = true;    # Don't store commands starting with space
       extended = true;       # Save timestamps
     };
+    initExtra = ''
+      source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+      # Accept autosuggestion with Ctrl+Space
+      bindkey '^ ' autosuggest-accept
+    '';
+  };
+
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;  # Binds Ctrl+R to fzf history search
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+    options = [ "--cmd" "z" ];  # Use 'z' and 'zi' commands
   };
 }

@@ -12,7 +12,8 @@ return {
       if not configs.cadence then
         configs.cadence = {
           default_config = {
-            cmd = { "flow", "cadence", "language-server", "--enable-flow-client=false" },
+            -- cmd = { "flow", "cadence", "language-server", "--enable-flow-client=false" },
+            cmd = { "sh", "-c", "/tmp/cadence-language-server --enable-flow-client=false 2>/tmp/lsp-debug.log" },
             filetypes = { "cadence", "cdc" },
             root_dir = lspconfig.util.root_pattern("flow.json", ".git"),
             single_file_support = true,
