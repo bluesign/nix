@@ -19,9 +19,7 @@
     settings = {
       input = {
         keyboard = {
-          xkb = {
-            options = "caps:super,ctrl:swap_lwin_lctl";
-          };
+          xkb = {};
           numlock = true;
         };
 
@@ -89,6 +87,15 @@
       animations = {};
 
       window-rules = [
+        {
+          # All floating windows open at top-right with max 1/3 width
+          default-floating-position = {
+            x = 0;
+            y = 0;
+            relative-to = "top-right";
+          };
+          default-column-width = { proportion = 0.33; };
+        }
         {
           matches = [{ app-id = "^org\\.wezfurlong\\.wezterm$"; }];
           default-column-width = {};

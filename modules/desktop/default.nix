@@ -6,15 +6,18 @@
   programs.niri.enable = true;
   programs.xwayland.enable = true;
 
-  # Enable keyd for tap-vs-hold modifier behavior
+  # Enable keyd for key remapping
   services.keyd = {
     enable = true;
     keyboards.default = {
       ids = [ "*" ];
       settings = {
         main = {
-          # Tap Super = Super+O (toggle-overview), Hold = normal Super modifier
-          meta = "overload(meta, M-o)";
+          # Caps Lock = Super (tap for Escape, hold for modifier)
+          capslock = "overload(meta, esc)";
+          # Swap Left Meta and Left Control
+          leftmeta = "leftcontrol";
+          leftcontrol = "leftmeta";
         };
       };
     };
