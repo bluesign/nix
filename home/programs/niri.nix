@@ -117,6 +117,11 @@
           matches = [{ is-focused = false; }];
           opacity = 0.80;
         }
+        {
+          # Floating windows fully opaque
+          matches = [{ is-floating = true; }];
+          opacity = 1.0;
+        }
       ];
 
       binds = {
@@ -269,18 +274,20 @@
         # Workspace navigation
         "Mod+Page_Down".action.focus-workspace-down = [];
         "Mod+Page_Up".action.focus-workspace-up = [];
-        "Mod+U".action.focus-workspace-down = [];
-        "Mod+I".action.focus-workspace-up = [];
+        "Mod+I" = {
+          action.spawn = "kitty";
+          hotkey-overlay.title = "Open a Terminal: kitty";
+        };
+        "Mod+U" = {
+          action.spawn = "google-chrome-stable";
+          hotkey-overlay.title = "Open Browser: Chrome";
+        };
         "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = [];
         "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = [];
-        "Mod+Ctrl+U".action.move-column-to-workspace-down = [];
-        "Mod+Ctrl+I".action.move-column-to-workspace-up = [];
 
         # Move workspace
         "Mod+Shift+Page_Down".action.move-workspace-down = [];
         "Mod+Shift+Page_Up".action.move-workspace-up = [];
-        "Mod+Shift+U".action.move-workspace-down = [];
-        "Mod+Shift+I".action.move-workspace-up = [];
 
         # Mouse wheel workspace navigation
         "Mod+WheelScrollDown" = {
@@ -337,6 +344,8 @@
         # Column operations
         "Mod+BracketLeft".action.consume-or-expel-window-left = [];
         "Mod+BracketRight".action.consume-or-expel-window-right = [];
+        "Mod+G".action.consume-or-expel-window-left = [];
+        "Mod+Semicolon".action.consume-or-expel-window-right = [];
         "Mod+Comma".action.consume-window-into-column = [];
         "Mod+Period".action.expel-window-from-column = [];
 
