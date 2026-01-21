@@ -10,14 +10,11 @@
   services.keyd = {
     enable = true;
     keyboards.default = {
-      ids = [ "*" ];
+      ids = [ "*" "-keyd*" ];
       settings = {
         main = {
           # Caps Lock = Ctrl (tap for Escape, hold for modifier)
           capslock = "overload(control, esc)";
-          # Swap left control and left super
-          leftcontrol = "leftmeta";
-          leftmeta = "leftcontrol";
         };
       };
     };

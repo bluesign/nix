@@ -43,6 +43,7 @@
       img = "chafa -f kitty";
       vim = "nvim";
       y = "yazi";
+      claude = "claude --dangerously-skip-permissions";
     };
     history = {
       size = 100000;
