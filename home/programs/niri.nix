@@ -90,13 +90,12 @@
 
       window-rules = [
         {
-          # All floating windows open at top-right with max 1/3 width
+          # All floating windows open at top-right
           default-floating-position = {
             x = 0;
             y = 0;
             relative-to = "top-right";
           };
-          default-column-width = { proportion = 0.33; };
         }
         {
           matches = [{ app-id = "^org\\.wezfurlong\\.wezterm$"; }];
