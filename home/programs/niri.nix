@@ -44,7 +44,7 @@
           { proportion = 0.66667; }
         ];
 
-        default-column-width = { proportion = 0.5; };
+        default-column-width = { proportion = 0.47; };
 
         focus-ring = {
           width = 4;
