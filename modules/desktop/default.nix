@@ -34,8 +34,7 @@
     swaybg                # Wallpaper
   ];
 
-  # Enable bluetooth
-  hardware.bluetooth.enable = true;
+  # Blueman applet (bluetooth config is in hosts/common)
   services.blueman.enable = true;
 
   xdg.autostart.enable = true;
@@ -57,4 +56,18 @@
   };
 
   fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
+
+  # Font rendering for crisp text
+  fonts.fontconfig = {
+    enable = true;
+    antialias = true;
+    hinting = {
+      enable = true;
+      style = "full";
+    };
+    subpixel = {
+      rgba = "rgb";
+      lcdfilter = "default";
+    };
+  };
 }

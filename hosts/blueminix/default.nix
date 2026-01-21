@@ -11,6 +11,21 @@
 
   networking.hostName = "blueminix";
 
+  # AMD Radeon 780M graphics
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;  # For Steam/gaming
+  };
+
+  # Thunderbolt/USB4 support
+  services.hardware.bolt.enable = true;
+
+  # Firmware updates (BIOS, devices)
+  services.fwupd.enable = true;
+
+  # SSD TRIM for NVMe health
+  services.fstrim.enable = true;
+
   # WirePlumber config for EliteMini (no internal speakers, headphone jack only)
   # Set the ALC269VC analog output as default audio sink
   services.pipewire.wireplumber.extraConfig."50-blueminix-audio" = {

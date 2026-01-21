@@ -102,12 +102,20 @@ in
     user.email = "deniz@edincik.com";
   };
 
-  programs.git.delta = {
+  programs.delta = {
     enable = true;
+    enableGitIntegration = true;
     options = {
       navigate = true;
       side-by-side = true;
       line-numbers = true;
+    };
+  };
+
+  # Font scaling for larger text system-wide
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      text-scaling-factor = 1.1;
     };
   };
 

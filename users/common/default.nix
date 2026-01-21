@@ -53,7 +53,7 @@
       ignoreSpace = true;    # Don't store commands starting with space
       extended = true;       # Save timestamps
     };
-    initExtra = ''
+    initContent = ''
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Accept autosuggestion with Ctrl+Space
       bindkey '^ ' autosuggest-accept

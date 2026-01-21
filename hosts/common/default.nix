@@ -4,6 +4,7 @@
 {
   # Boot loader
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Networking
@@ -14,7 +15,15 @@
 
   # Nix settings
   nix.settings.experimental-features = "nix-command flakes";
+  nix.settings.auto-optimise-store = true;
   nixpkgs.config.allowUnfree = true;
+
+  # Automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
 
   # Shell
   programs.zsh.enable = true;
@@ -61,6 +70,16 @@
 
   # Power management (required for battery monitoring)
   services.upower.enable = true;
+
+  # Zram swap (compressed RAM swap, better than disk)
+  zramSwap.enable = true;
+
+  # Early OOM killer (prevents system freeze on low memory)
+  services.earlyoom = {
+    enable = true;
+    freeMemThreshold = 5;
+    freeSwapThreshold = 10;
+  };
 
   # Bluetooth
   hardware.bluetooth = {
