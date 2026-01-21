@@ -71,6 +71,9 @@
   # Power management (required for battery monitoring)
   services.upower.enable = true;
 
+  # Power profiles (use `powerprofilesctl` to switch between power-saver/balanced/performance)
+  services.power-profiles-daemon.enable = true;
+
   # Zram swap (compressed RAM swap, better than disk)
   zramSwap.enable = true;
 
