@@ -56,8 +56,10 @@
   programs.steam.enable = true;
 
   # uinput access for Sunshine virtual input devices
+  # hidraw access for user (HID devices like keyboards, mice, etc.)
   services.udev.extraRules = ''
     KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="users"
   '';
   boot.kernelModules = [ "uinput" ];
 
