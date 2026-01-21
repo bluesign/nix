@@ -13,11 +13,8 @@
       ids = [ "*" ];
       settings = {
         main = {
-          # Caps Lock = Super (tap for Escape, hold for modifier)
-          capslock = "overload(meta, esc)";
-          # Swap Left Meta and Left Control
-          leftmeta = "leftcontrol";
-          leftcontrol = "leftmeta";
+          # Caps Lock = Ctrl (tap for Escape, hold for modifier)
+          capslock = "overload(control, esc)";
         };
       };
     };
