@@ -19,9 +19,7 @@
     settings = {
       input = {
         keyboard = {
-          xkb = {
-            options = "ctrl:swap_lwin_lctl";
-          };
+          xkb = {};
           numlock = true;
         };
 
