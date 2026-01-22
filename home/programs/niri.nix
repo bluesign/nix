@@ -18,8 +18,13 @@
 
     settings = {
       outputs = {
-        "DP-3" = {
-          scale = 1.4;
+        "DP-7" = {
+          scale = 1.25;
+          mode = {
+            width = 5120;
+            height = 2160;
+            refresh = 120.0;
+          };
         };
       };
 
@@ -48,7 +53,7 @@
           { proportion = 0.66667; }
         ];
 
-        default-column-width = { proportion = 0.47; };
+        default-column-width = { proportion = 0.33333; };
 
         focus-ring = {
           width = 4;
@@ -368,8 +373,8 @@
         "Mod+Ctrl+C".action.center-visible-columns = [];
 
         # Fine width/height adjustments
-        "Mod+Minus".action.set-column-width = "-10%";
-        "Mod+Equal".action.set-column-width = "+10%";
+        "Mod+Alt+Minus".action.set-column-width = "-10%";
+        "Mod+Alt+Equal".action.set-column-width = "+10%";
         "Mod+Shift+Minus".action.set-window-height = "-10%";
         "Mod+Shift+Equal".action.set-window-height = "+10%";
 

@@ -26,16 +26,17 @@
   # SSD TRIM for NVMe health
   services.fstrim.enable = true;
 
-  # WirePlumber config for EliteMini (no internal speakers, headphone jack only)
-  # Set the ALC269VC analog output as default audio sink
+  # WirePlumber config for EliteMini - HDMI audio to monitor as default
   services.pipewire.wireplumber.extraConfig."50-blueminix-audio" = {
     "monitor.alsa.rules" = [
       {
-        matches = [{ "device.name" = "alsa_card.pci-0000_c4_00.6"; }];
+        # Radeon HDMI audio - set as default output
+        matches = [{ "device.name" = "alsa_card.pci-0000_c4_00.1"; }];
         actions.update-props = {
-          # Higher priority to be selected as default
           "priority.driver" = 2000;
           "priority.session" = 2000;
+          # Enable HDMI stereo profile by default
+          "device.profile" = "output:hdmi-stereo";
         };
       }
     ];

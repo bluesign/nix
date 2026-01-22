@@ -8,7 +8,11 @@
     shellIntegration.enableZshIntegration = true;
     settings = {
       # Font
+      font_family = "JetBrainsMono Nerd Font";
       font_size = 11;
+      text_composition_strategy = "legacy";
+      disable_ligatures = "never";
+      force_ltr = false;
 
       # Graphics
       allow_remote_control = "yes";
