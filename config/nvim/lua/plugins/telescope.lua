@@ -13,13 +13,18 @@ return {
       { "<Leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
       { "<Leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
       { "<Leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-      { "gr", "<cmd>Telescope lsp_references<cr>", desc = "LSP references" },
-      { "gd", "<cmd>Telescope lsp_definitions<cr>", desc = "LSP definitions" },
-      { "gi", "<cmd>Telescope lsp_implementations<cr>", desc = "LSP implementations" },
       { "<Leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
       { "<Leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
     },
     opts = {
+      defaults = {
+        mappings = {
+          i = {
+            ["<C-j>"] = "move_selection_next",
+            ["<C-k>"] = "move_selection_previous",
+          },
+        },
+      },
       extensions = {
         fzf = {
           fuzzy = true,

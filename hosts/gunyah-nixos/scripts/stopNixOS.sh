@@ -1,23 +1,24 @@
-#!/bin/bash
-# stopNixOS.sh — Gracefully stop NixOS VM
-# Deploy to ~/nixos/ on the phone
-set -e
+#!/system/bin/sh
 
-SOCKET="$HOME/nixos/crosvm-nixos.sock"
-TAP="tap2"
-
-if [ ! -S "$SOCKET" ]; then
-    echo "NixOS VM is not running (no socket at $SOCKET)"
-    exit 1
+if [ "$(id -u)" != "0" ]; then
+    exec su -c "sh $0 $*"
 fi
 
-echo "Stopping NixOS VM..."
-crosvm stop "$SOCKET"
+SCRIPT_DIR=$(dirname $(readlink -f "$0"))
+SOCK="$SCRIPT_DIR/crosvm-nixos.sock"
 
-# Clean up TAP interface
-if ip link show "$TAP" &>/dev/null; then
-    ip link set "$TAP" down
-    ip tuntap del dev "$TAP" mode tap
+# Try graceful stop via socket first
+if [ -S "$SOCK" ]; then
+    echo "Stopping NixOS VM via socket..."
+    /data/local/tmp/crosvm stop "$SOCK" && echo "VM stopped gracefully"
+    rm -f "$SOCK"
+else
+    echo "No socket found."
 fi
 
-echo "NixOS VM stopped."
+# Clean up tap
+if [ -d /sys/class/net/tap2 ]; then
+    ip link set tap2 down 2>/dev/null
+    ip link delete tap2 2>/dev/null
+    echo "TAP device removed"
+fi

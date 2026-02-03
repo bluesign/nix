@@ -15,10 +15,11 @@
   # VM guest kernel modules
   boot.initrd.availableKernelModules = [
     "virtio_pci" "virtio_mmio" "virtio_blk" "virtio_net"
-    "virtio_console" "virtiofs" "9p" "9pnet" "9pnet_virtio"
+    "virtio_console" "virtiofs" "virtio_gpu"
+    "9p" "9pnet" "9pnet_virtio"
   ];
   boot.initrd.supportedFilesystems = [ "virtiofs" ];
-  boot.kernelModules = [ "virtio_net" "virtio_pci" "virtio_mmio" ];
+  boot.kernelModules = [ "virtio_net" "virtio_pci" "virtio_mmio" "virtio_gpu" ];
 
   # Console for crosvm serial
   boot.kernelParams = [ "console=hvc0" ];
@@ -49,15 +50,23 @@
     settings.PermitRootLogin = "yes";
   };
 
-  # X11 + XFCE4 desktop
-  # XFCE is launched manually: DISPLAY=192.168.8.1:0 startxfce4
+  # X11 on virtio-gpu (/dev/dri/card0) — rendered by crosvm to termux-x11
   services.xserver = {
     enable = true;
     desktopManager.xfce.enable = true;
+    videoDrivers = [ "modesetting" ];
   };
 
-  # Remote X11 to termux-x11 on the host device
-  environment.variables.DISPLAY = "192.168.8.1:0";
+  # Auto-login to XFCE (no display manager greeter)
+  services.displayManager = {
+    autoLogin = {
+      enable = true;
+      user = "bluesign";
+    };
+  };
+
+  # Mesa for virtio-gpu (virgl 3D support)
+  hardware.graphics.enable = true;
 
   # Required by home-manager xdg portal config (from niri/desktop modules in user profile)
   environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
@@ -76,10 +85,13 @@
   ];
 
   # User
+  users.users.root.initialPassword = "nixos";
+
   users.users.bluesign = {
     isNormalUser = true;
     extraGroups = [ "wheel" "video" "audio" ];
     shell = pkgs.zsh;
+    initialPassword = "nixos";
   };
 
   system.stateVersion = "25.11";

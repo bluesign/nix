@@ -1,13 +1,39 @@
 { config, lib, pkgs, inputs, ... }:
 
+let
+  nfsm-patched = pkgs.callPackage ../../packages/nfsm {
+    niri = inputs.niri.packages.${pkgs.system}.niri-unstable;
+  };
+in
 {
   home.packages = [
     inputs.niri-float-sticky.packages.${pkgs.system}.default
   ];
 
+  # Idle management: lock screen after 5 minutes
+  services.swayidle = {
+    enable = true;
+    timeouts = [
+      {
+        timeout = 300;  # 5 minutes
+        command = "${pkgs.swaylock}/bin/swaylock -f";
+      }
+      {
+        timeout = 600;  # 10 minutes - turn off displays
+        command = "niri msg action power-off-monitors";
+      }
+    ];
+    events = [
+      {
+        event = "before-sleep";
+        command = "${pkgs.swaylock}/bin/swaylock -f";
+      }
+    ];
+  };
+
   services.nfsm = {
     enable = true;
-    package = inputs.nfsm.packages.${pkgs.system}.nfsm;
+    package = nfsm-patched;
     enableCli = true;
   };
 
@@ -85,7 +111,7 @@
         { command = [ "systemctl" "--user" "start" "nixos-fake-graphical-session.target" ]; }
         { command = [ "systemctl" "--user" "start" "pipewire.service" "wireplumber.service" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gtk.service" "xdg-desktop-portal-gnome.service" ]; }
-        { command = [ "swaybg" "-i" "/home/bluesign/shared/wallpaper.jpeg" "-m" "fill" ]; }
+        { command = [ "swaybg" "-i" "/home/bluesign/shared/wallpaper.png" "-m" "fill" ]; }
         { command = [ "niri-float-sticky" ]; }
       ];
 
@@ -119,6 +145,14 @@
           open-floating = true;
         }
         {
+          matches = [{ app-id = "scrcpy"; }];  # Matches .scrcpy-wrapped
+          open-floating = true;
+        }
+        {
+          matches = [{ app-id = "^imv$"; }];
+          open-floating = true;
+        }
+        {
           # Focused windows fully opaque
           matches = [{ is-focused = true; }];
           opacity = 1.0;
@@ -147,6 +181,32 @@
         "Mod+D" = {
           action.spawn = "fuzzel";
           hotkey-overlay.title = "Run an Application: fuzzel";
+        };
+        "Mod+N" = {
+          action.spawn = [ "dms" "ipc" "call" "notifications" "toggle" ];
+          hotkey-overlay.title = "Toggle Notifications";
+        };
+
+        # DMS panels
+        "Mod+Space" = {
+          action.spawn = [ "dms" "ipc" "call" "spotlight" "toggle" ];
+          hotkey-overlay.title = "DMS: App Launcher";
+        };
+        "Mod+A" = {
+          action.spawn = [ "dms" "ipc" "call" "control-center" "toggle" ];
+          hotkey-overlay.title = "DMS: Control Center";
+        };
+        "Mod+X" = {
+          action.spawn = [ "dms" "ipc" "call" "powermenu" "toggle" ];
+          hotkey-overlay.title = "DMS: Power Menu";
+        };
+        "Mod+P" = {
+          action.spawn = [ "dms" "ipc" "call" "processlist" "toggle" ];
+          hotkey-overlay.title = "DMS: Process List";
+        };
+        "Mod+Slash" = {
+          action.spawn = "wl-kbptr";
+          hotkey-overlay.title = "Keyboard Pointer";
         };
         "Super+Alt+L" = {
           action.spawn = "swaylock";
@@ -394,7 +454,7 @@
         "Alt+Print".action.screenshot-window = [];
 
         # Screenshot with annotation GUI (grim + slurp + swappy)
-        "Shift+Print" = {
+        "Mod+Backslash" = {
           action.spawn = [ "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -" ];
           hotkey-overlay.title = "Screenshot with annotation";
         };

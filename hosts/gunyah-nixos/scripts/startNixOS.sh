@@ -1,57 +1,76 @@
-#!/bin/bash
-# startNixOS.sh — Start NixOS VM on Gunyah/crosvm (OnePlus 13)
-# Deploy to ~/nixos/ on the phone
-# Runs alongside Debian VM (.2) — NixOS gets .3
-set -e
+#!/system/bin/sh
 
-NIXOS_DIR="$HOME/nixos"
-KERNEL="$NIXOS_DIR/Image"
-INITRD="$NIXOS_DIR/initrd"
-ROOTFS="$NIXOS_DIR/rootfs"
-SOCKET="$NIXOS_DIR/crosvm-nixos.sock"
-
-TAP="tap2"
-HOST_IP="192.168.8.1"
-GUEST_IP="192.168.8.3"
-MAC="52:54:00:12:34:03"
-
-MEM=4096
-CPUS=4
-
-# --- Networking setup ---
-
-# Create TAP interface for NixOS VM
-if ! ip link show "$TAP" &>/dev/null; then
-    ip tuntap add dev "$TAP" mode tap
+# Re-exec as root if not already
+if [ "$(id -u)" != "0" ]; then
+    exec su -c "sh $0 $*"
 fi
-# Host IP may already be on tap1/bridge — only add if not present
-if ! ip addr show dev "$TAP" | grep -q "$HOST_IP"; then
-    ip addr add "$HOST_IP/24" dev "$TAP" 2>/dev/null || true
+
+SCRIPT_DIR=$(dirname $(readlink -f "$0"))
+SOCK="$SCRIPT_DIR/crosvm-nixos.sock"
+LOG="$SCRIPT_DIR/crosvm-nixos.log"
+
+cd /data/local/tmp
+
+# --- Check if already running ---
+if [ -S "$SOCK" ]; then
+    echo "Error: NixOS VM is already running. Stop it first:"
+    echo "  sh $SCRIPT_DIR/stopNixOS.sh"
+    exit 1
 fi
-ip link set "$TAP" up
 
-# Enable IP forwarding + NAT for internet access
-echo 1 > /proc/sys/net/ipv4/ip_forward
-iptables -t nat -C POSTROUTING -s 192.168.8.0/24 -j MASQUERADE 2>/dev/null || \
-    iptables -t nat -A POSTROUTING -s 192.168.8.0/24 -j MASQUERADE
-iptables -C FORWARD -i "$TAP" -j ACCEPT 2>/dev/null || \
-    iptables -A FORWARD -i "$TAP" -j ACCEPT
-iptables -C FORWARD -o "$TAP" -j ACCEPT 2>/dev/null || \
-    iptables -A FORWARD -o "$TAP" -j ACCEPT
+rm -f "$SOCK" "$LOG"
 
-# --- Launch VM ---
+ifname=tap2
+if [ -d /sys/class/net/$ifname ]; then
+    ip link set $ifname down 2>/dev/null
+    ip link delete $ifname 2>/dev/null
+fi
 
-echo "Starting NixOS VM: ${GUEST_IP} (mem=${MEM}M, cpus=${CPUS})"
-echo "Control socket: ${SOCKET}"
-echo "X11 display: ${HOST_IP}:0 (termux-x11)"
+# --- Network setup ---
+ip tuntap add mode tap vnet_hdr $ifname
+ip addr add 192.168.8.1/24 dev $ifname 2>/dev/null || true
+ip link set $ifname up
 
-crosvm run \
-    -m "size=${MEM}" \
-    -c "num-cores=${CPUS}" \
-    --initrd "$INITRD" \
-    --shared-dir "${ROOTFS}:rootfs:type=fs:cache=always" \
-    --net "tap-name=${TAP},mac=${MAC}" \
-    --serial type=stdout,console \
-    -s "$SOCKET" \
-    -p "rootfstype=virtiofs root=rootfs console=hvc0" \
-    "$KERNEL"
+iptables -D INPUT -j ACCEPT -i $ifname 2>/dev/null
+iptables -D OUTPUT -j ACCEPT -o $ifname 2>/dev/null
+iptables -I INPUT -j ACCEPT -i $ifname
+iptables -I OUTPUT -j ACCEPT -o $ifname
+iptables -t nat -D POSTROUTING -j MASQUERADE -o wlan0 -s 192.168.8.0/24 2>/dev/null
+iptables -t nat -I POSTROUTING -j MASQUERADE -o wlan0 -s 192.168.8.0/24
+sysctl -w net.ipv4.ip_forward=1
+
+ip rule add iif $ifname lookup wlan0 2>/dev/null
+
+iptables -j ACCEPT -D FORWARD -i $ifname -o wlan0 2>/dev/null
+iptables -j ACCEPT -D FORWARD -m state --state ESTABLISHED,RELATED -i wlan0 -o $ifname 2>/dev/null
+iptables -j ACCEPT -D FORWARD -m state --state ESTABLISHED,RELATED -o wlan0 -i $ifname 2>/dev/null
+iptables -j ACCEPT -I FORWARD -i $ifname -o wlan0
+iptables -j ACCEPT -I FORWARD -m state --state ESTABLISHED,RELATED -i wlan0 -o $ifname
+iptables -j ACCEPT -I FORWARD -m state --state ESTABLISHED,RELATED -o wlan0 -i $ifname
+
+# --- Raise limits ---
+ulimit -l unlimited
+ulimit -n 65536
+
+# --- Launch crosvm ---
+/data/local/tmp/crosvm --log-level debug run \
+    --socket "$SOCK" \
+    --lock-guest-memory \
+    --disable-sandbox \
+    --no-balloon \
+    --protected-vm-without-firmware \
+    --swiotlb 64 \
+    --mem 4096 \
+    --cpus 4 \
+    --net tap-name=$ifname \
+    --shared-dir "$SCRIPT_DIR/rootfs:rootfs:type=fs" \
+    --initrd "$SCRIPT_DIR/initrd" \
+    --params "rootfstype=virtiofs root=rootfs rw console=hvc0" \
+    "$SCRIPT_DIR/Image" \
+    >> "$LOG" 2>&1 &
+
+echo "NixOS VM started (pid $!)"
+echo "Socket: $SOCK"
+echo "Log:    $LOG"
+echo "Stop:   sh $SCRIPT_DIR/stopNixOS.sh"
+echo "SSH:    ssh root@192.168.8.3"

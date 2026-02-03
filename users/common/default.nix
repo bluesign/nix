@@ -16,6 +16,9 @@
     # Utils
     gh
     xdg-utils
+    system-config-printer
+    mullvad-vpn
+    mitmproxy
   ];
 
   programs.git.enable = true;
@@ -44,6 +47,8 @@
       vim = "nvim";
       y = "yazi";
       claude = "claude --dangerously-skip-permissions";
+      scrcpy = "scrcpy --render-driver=opengl --turn-screen-off --stay-awake --window-width=420 --window-height=904";
+      pixel = "scrcpy --render-driver=opengl --turn-screen-off --stay-awake --window-width=420 --window-height=904";
     };
     history = {
       size = 100000;
@@ -57,6 +62,15 @@
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Accept autosuggestion with Ctrl+Space
       bindkey '^ ' autosuggest-accept
+
+      # Load API keys from pass if available
+      if command -v pass &> /dev/null && [ -d "$HOME/.password-store" ]; then
+        export OPENAI_API_KEY="$(pass show api/openai 2>/dev/null)"
+      fi
+
+      # Pixel file transfer functions
+      topixel() { adb push "$@" /sdcard/Download/; }
+      frompixel() { adb pull "/sdcard/Download/$1" .; }
     '';
   };
 
