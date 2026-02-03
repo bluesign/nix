@@ -11,10 +11,23 @@
 
   networking.hostName = "blueminix";
 
-  # AMD Radeon 780M graphics
+  # Enable aarch64 emulation for cross-building (gunyah-nixos VM)
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
+  # AMD Radeon 780M graphics - stability fixes for freezes
+  boot.kernelParams = [
+    "amdgpu.ppfeaturemask=0xffffffff"  # Enable all power management features
+    "amdgpu.gpu_recovery=1"             # Enable GPU hang recovery
+    "amdgpu.dc=1"                       # Enable Display Core
+    "amdgpu.dcdebugmask=0x10"           # Reduce DC debug overhead
+  ];
+
   hardware.graphics = {
     enable = true;
     enable32Bit = true;  # For Steam/gaming
+    extraPackages = with pkgs; [
+      rocmPackages.clr.icd  # OpenCL support
+    ];
   };
 
   # Thunderbolt/USB4 support
@@ -55,17 +68,9 @@
     trustedInterfaces = [ "tailscale0" ];
   };
 
-  # Sunshine remote desktop server
-  services.sunshine = {
-    enable = true;
-    autoStart = true;
-    capSysAdmin = true;  # Required for Wayland capture
-    openFirewall = true;
-    settings = {
-      # Stream at bluebook's native resolution to avoid scaling artifacts
-      dd_resolution_option = "manual";
-      dd_manual_resolution = "2560x1600";
-    };
+  # Sunshine remote desktop server - override common config
+  services.sunshine.settings = {
+    dd_resolution_option = lib.mkForce "disabled";  # Don't auto-change resolution (causes crashes on Wayland)
   };
 
   # Steam gaming platform
@@ -98,7 +103,7 @@
 
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "keyd" "uinput" ];  # uinput group for Sunshine
+    extraGroups = [ "wheel" "keyd" "uinput" "video" ];  # uinput for Sunshine, video for webcam
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;
   };

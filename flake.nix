@@ -14,10 +14,15 @@
       flake = false;
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    claude-code.inputs.nixpkgs.follows = "nixpkgs";
     tree-sitter-cadence.url = "github:bluesign/tree-sitter-cadence";
+    tree-sitter-cadence.inputs.nixpkgs.follows = "nixpkgs";
     niri.url = "github:sodiboo/niri-flake";
+    niri.inputs.nixpkgs.follows = "nixpkgs";
     nfsm.url = "github:gvolpe/nfsm";
+    nfsm.inputs.nixpkgs.follows = "nixpkgs";
     niri-float-sticky.url = "github:probeldev/niri-float-sticky";
+    niri-float-sticky.inputs.nixpkgs.follows = "nixpkgs";
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,6 +35,7 @@
       mkHost = { hostname, system ? "x86_64-linux", users ? [ ] }:
         nixpkgs.lib.nixosSystem {
           inherit system;
+          specialArgs = { inherit inputs; };
           modules = [
             ./hosts/${hostname}
             {
@@ -68,6 +74,26 @@
         blueminix = mkHost {
           hostname = "blueminix";
           users = [ "bluesign" ];
+        };
+
+        # Gunyah/crosvm VM — lightweight, no Wayland stack
+        gunyah-nixos = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./hosts/gunyah-nixos
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = { inherit inputs; };
+                sharedModules = [ ];  # no niri/nfsm/dms
+                users.bluesign = import ./users/bluesign/gunyah.nix;
+                backupFileExtension = "hm-backup";
+              };
+            }
+          ];
         };
 
         # Minimal recovery system - no home-manager needed

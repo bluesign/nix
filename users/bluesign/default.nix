@@ -50,12 +50,15 @@ in
     fuzzel
     bluetuith
     claude-code
-    nemo
+    nemo-with-extensions  # Includes GVFS support for network locations
     grim          # Wayland screenshot tool
     slurp         # Area selection for Wayland
     swappy        # GUI annotation tool
+    wf-recorder   # Wayland screen recorder (wf-recorder -g "$(slurp)" -f out.mp4)
     wl-clipboard  # Wayland clipboard (wl-copy, wl-paste)
     yazi          # Terminal file manager with image preview
+    imv           # Fast Wayland image viewer
+    wl-kbptr      # Keyboard pointer control for Wayland
 
     # Dev
     neovim
@@ -78,10 +81,9 @@ in
     nixd
     nixpkgs-fmt
     (python3.withPackages (ps: with ps; [ requests pypdf reportlab ]))
+    pipx          # Install Python apps in isolated environments
 
     # Apps
-    google-chrome
-    discord-ptb
     ytui-music    # YouTube Music TUI player
     chawan        # Terminal web browser
     nchat         # Terminal WhatsApp/Telegram client
@@ -90,11 +92,36 @@ in
     # Media
     mpv           # Video player (includes libmpv)
     yt-dlp        # YouTube downloader (maintained fork of youtube-dl)
+    v4l-utils     # Camera tools (v4l2-ctl for testing webcams)
 
     # Sixel graphics
     libsixel      # img2sixel - convert images to sixel
     chafa         # Image viewer with sixel support
 
+    # Secrets
+    gnupg
+    pass
+
+    # System
+    btop          # Resource monitor with GPU support
+    ncdu          # Interactive disk usage analyzer
+
+    # Networking
+    nmap
+
+    # RF/SDR
+    python312Packages.rfcat  # PandwaRF / Yard Stick One control
+
+    # Android
+    valent          # KDE Connect protocol (notifications, clipboard, files)
+    scrcpy          # Screen mirroring and control
+    android-tools   # ADB for device communication
+    sshfs           # SFTP filesystem mount (required for Valent phone browsing)
+  ] ++ lib.optionals stdenv.hostPlatform.isx86_64 [
+    # x86_64-only packages
+    vscode
+    google-chrome
+    discord-ptb
   ];
 
   programs.git.settings = {
@@ -109,6 +136,15 @@ in
       navigate = true;
       side-by-side = true;
       line-numbers = true;
+    };
+  };
+
+  programs.gpg.enable = true;
+
+  programs.password-store = {
+    enable = true;
+    settings = {
+      PASSWORD_STORE_DIR = "$HOME/.password-store";
     };
   };
 
