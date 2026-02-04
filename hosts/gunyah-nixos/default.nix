@@ -12,14 +12,12 @@
   # No bootloader — crosvm provides kernel directly
   boot.loader.grub.enable = false;
 
-  # VM guest kernel modules
-  boot.initrd.availableKernelModules = [
-    "virtio_pci" "virtio_mmio" "virtio_blk" "virtio_net"
-    "virtio_console" "virtiofs" "virtio_gpu"
-    "9p" "9pnet" "9pnet_virtio"
-  ];
-  boot.initrd.supportedFilesystems = [ "virtiofs" ];
-  boot.kernelModules = [ "virtio_net" "virtio_pci" "virtio_mmio" "virtio_gpu" ];
+  # Custom Gunyah kernel has everything built-in, no modules needed in initrd
+  boot.initrd.availableKernelModules = lib.mkForce [];
+  boot.initrd.kernelModules = lib.mkForce [];
+  boot.initrd.includeDefaultModules = false;
+  boot.initrd.supportedFilesystems = lib.mkForce [ "ext4" ];
+  boot.kernelModules = [];
 
   # Console for crosvm serial
   boot.kernelParams = [ "console=hvc0" ];
@@ -68,6 +66,29 @@
   # Mesa for virtio-gpu (virgl 3D support)
   hardware.graphics.enable = true;
 
+  # x11vnc — share the real X display over VNC (port 5901)
+  systemd.services.x11vnc = {
+    description = "x11vnc VNC server";
+    after = [ "display-manager.service" ];
+    requires = [ "display-manager.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
+      ExecStart = lib.concatStringsSep " " [
+        "${pkgs.x11vnc}/bin/x11vnc"
+        "-display :0"
+        "-auth /var/run/lightdm/root/:0"
+        "-forever -nopw -noshm"
+        "-rfbport 5901"
+        "-ncache 10 -ncache_cr"
+        "-defer 10 -wait 10"
+        "-threads"
+      ];
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+  };
+
   # Required by home-manager xdg portal config (from niri/desktop modules in user profile)
   environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
 
@@ -82,6 +103,12 @@
     htop
     firefox
     chromium
+
+    # VNC remote desktop
+    tigervnc
+    novnc
+    python3Packages.websockify
+    mesa-demos  # glxinfo/glxgears
   ];
 
   # User

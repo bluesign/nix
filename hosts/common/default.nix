@@ -290,6 +290,13 @@ in
     };
   };
 
+  # Enable legacy SDP socket (needed by sdptool / bt-kvm SDP registration)
+  systemd.services.bluetooth.serviceConfig.ExecStart = lib.mkForce [
+    ""
+    "${pkgs.bluez}/libexec/bluetooth/bluetoothd --compat --noplugin=input"
+  ];
+
+
   # Bluetooth udev rules:
   # - Disable USB autosuspend for all BT adapters (class e0 = wireless controller)
   # - BT HID low latency connection intervals (7.5ms-11.25ms)

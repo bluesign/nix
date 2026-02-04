@@ -101,6 +101,19 @@
   '';
   hardware.uinput.enable = true;  # Creates uinput group and sets up permissions
 
+  # Bluetooth KVM - relay keyboard/mouse to OnePlus Pad 3 via BT HID
+  systemd.services.bt-kvm = {
+    description = "Bluetooth KVM input relay";
+    after = [ "bluetooth.service" ];
+    wants = [ "bluetooth.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "/home/bluesign/src/synMaybe/bt-kvm -config /home/bluesign/src/synMaybe/config.toml";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+  };
+
   users.users.bluesign = {
     isNormalUser = true;
     extraGroups = [ "wheel" "keyd" "uinput" "video" ];  # uinput for Sunshine, video for webcam

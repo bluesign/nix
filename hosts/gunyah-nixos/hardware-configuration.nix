@@ -4,10 +4,10 @@
 {
   nixpkgs.hostPlatform = "aarch64-linux";
 
-  # virtiofs root filesystem (tag "rootfs" provided by crosvm --shared-dir)
+  # ext4 root filesystem on virtio block device
   fileSystems."/" = {
-    device = "rootfs";
-    fsType = "virtiofs";
+    device = "/dev/vda";
+    fsType = "ext4";
   };
 
   # No swap in VM
