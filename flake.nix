@@ -82,6 +82,17 @@
           specialArgs = { inherit inputs; };
           modules = [
             ./hosts/gunyah-nixos
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  mesa = prev.mesa.overrideAttrs (oldAttrs: {
+                    patches = (oldAttrs.patches or []) ++ [
+                      ./patches/mesa-gfxstream-robustness2.patch
+                    ];
+                  });
+                })
+              ];
+            }
             home-manager.nixosModules.home-manager
             {
               home-manager = {
