@@ -194,6 +194,9 @@
     # VNC remote desktop
     novnc
     python3Packages.websockify
+
+    # Put.io TUI client
+    (pkgs.callPackage ../../pkgs/putio { })
   ];
 
   # User
