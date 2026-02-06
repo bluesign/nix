@@ -138,6 +138,7 @@
     xwayland-satellite
     foot              # terminal
     xterm             # fallback terminal
+    fuzzel            # app launcher
     grim              # screenshots
     slurp             # region select
     wl-clipboard      # clipboard
