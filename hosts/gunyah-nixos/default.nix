@@ -72,7 +72,7 @@
             pkgs.xorg.libX11 pkgs.xorg.libXext pkgs.xorg.libXrender
             pkgs.xorg.libXfixes pkgs.xorg.libxcb pkgs.xorg.libXinerama
           ]}
-          exec ${pkgs.niri}/bin/niri
+          exec ${pkgs.niri}/bin/niri --session
         '';
       in "${niri-run}";
       user = "bluesign";
