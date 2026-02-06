@@ -22,6 +22,9 @@
   # Console for crosvm serial
   boot.kernelParams = [ "console=hvc0" ];
 
+  # Swap file (4GB — needed for building large packages like quickshell)
+  swapDevices = [{ device = "/swapfile"; size = 4096; }];
+
   # Static networking: .3 for NixOS, .2 for Debian, .1 for host
   networking = {
     useDHCP = false;
