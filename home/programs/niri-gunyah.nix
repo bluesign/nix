@@ -56,7 +56,7 @@
       };
 
       spawn-at-startup = [
-        { command = [ "systemctl" "--user" "import-environment" ]; }
+        { command = [ "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_RUNTIME_DIR" "DISPLAY" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gnome.service" ]; }
       ];
 
@@ -109,7 +109,7 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = [ "chromium" "--no-sandbox" "--disable-gpu" ];
+          action.spawn = [ "chromium" "--no-sandbox" "--disable-gpu" "--ozone-platform=wayland" ];
           hotkey-overlay.title = "Open Browser: Chromium";
         };
 
