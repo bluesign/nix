@@ -109,7 +109,7 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = [ "chromium" "--no-sandbox" ];
+          action.spawn = [ "chromium" "--no-sandbox" "--disable-gpu" ];
           hotkey-overlay.title = "Open Browser: Chromium";
         };
 
