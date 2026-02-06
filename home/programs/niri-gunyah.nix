@@ -109,8 +109,8 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = [ "chromium" "--no-sandbox" "--ozone-platform=wayland" ];
-          hotkey-overlay.title = "Open Browser: Chromium";
+          action.spawn = [ "google-chrome-stable" "--no-sandbox" "--ozone-platform=wayland" ];
+          hotkey-overlay.title = "Open Browser: Chrome";
         };
 
         # Media controls
