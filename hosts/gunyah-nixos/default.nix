@@ -41,6 +41,13 @@
 
   # Shell
   programs.zsh.enable = true;
+  programs.zsh.ohMyZsh = {
+    enable = true;
+    theme = "robbyrussell";
+    plugins = [ "git" "z" "fzf" "sudo" "systemadmin" "vi-mode" ];
+  };
+  programs.zsh.autosuggestions.enable = true;
+  programs.zsh.syntaxHighlighting.enable = true;
 
   # SSH server
   services.openssh = {
@@ -131,17 +138,24 @@
     wget
     git
     htop
+    fzf
     firefox
 
     # Niri desktop
     niri
     xwayland-satellite
     foot              # terminal
+    alacritty         # GPU-accelerated terminal
     xterm             # fallback terminal
     fuzzel            # app launcher
     grim              # screenshots
     slurp             # region select
     wl-clipboard      # clipboard
+    wlr-randr         # display management
+    playerctl         # media control
+    brightnessctl     # brightness control
+    swaylock          # screen locker
+    swaybg            # wallpaper
 
     # GPU/display tools
     mesa-demos        # glxinfo/glxgears
@@ -174,6 +188,21 @@
     extraGroups = [ "wheel" "video" "audio" "input" ];
     shell = pkgs.zsh;
     initialPassword = "nixos";
+  };
+
+  # Fonts
+  fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
+  fonts.fontconfig = {
+    enable = true;
+    antialias = true;
+    hinting = {
+      enable = true;
+      style = "full";
+    };
+    subpixel = {
+      rgba = "rgb";
+      lcdfilter = "default";
+    };
   };
 
   system.stateVersion = "25.11";
