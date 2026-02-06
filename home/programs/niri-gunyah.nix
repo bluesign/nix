@@ -109,8 +109,8 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = "firefox";
-          hotkey-overlay.title = "Open Browser: Firefox";
+          action.spawn = "chromium";
+          hotkey-overlay.title = "Open Browser: Chromium";
         };
 
         # Media controls
@@ -304,6 +304,12 @@
         # Quit
         "Alt+Shift+E".action.quit = [];
         "Ctrl+Alt+Delete".action.quit = [];
+
+        # Toggle scale 1x/2x
+        "Alt+S" = {
+          action.spawn = [ "sh" "-c" "if wlr-randr | grep -q 'Scale: 2'; then wlr-randr --output Virtual-1 --scale 1; else wlr-randr --output Virtual-1 --scale 2; fi" ];
+          hotkey-overlay.title = "Toggle Scale 1x/2x";
+        };
 
         # Power off monitors
         "Alt+Shift+P".action.power-off-monitors = [];
