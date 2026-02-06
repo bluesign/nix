@@ -93,7 +93,7 @@
                   });
                 })
               ];
-              environment.systemPackages = [ claude-code ];
+              environment.systemPackages = [ claude-code.packages.aarch64-linux.default ];
             }
             home-manager.nixosModules.home-manager
             {
