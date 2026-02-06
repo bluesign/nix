@@ -7,6 +7,7 @@
     ../common
     ../../home/programs/tmux.nix
     ../../home/programs/niri-gunyah.nix
+    ../../home/programs/dms.nix
   ];
 
   home = {

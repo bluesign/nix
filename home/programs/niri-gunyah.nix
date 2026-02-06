@@ -113,6 +113,28 @@
           hotkey-overlay.title = "Open Browser: Chromium";
         };
 
+        # DMS panels
+        "Alt+N" = {
+          action.spawn = [ "dms" "ipc" "call" "notifications" "toggle" ];
+          hotkey-overlay.title = "Toggle Notifications";
+        };
+        "Alt+Space" = {
+          action.spawn = [ "dms" "ipc" "call" "spotlight" "toggle" ];
+          hotkey-overlay.title = "DMS: App Launcher";
+        };
+        "Alt+A" = {
+          action.spawn = [ "dms" "ipc" "call" "control-center" "toggle" ];
+          hotkey-overlay.title = "DMS: Control Center";
+        };
+        "Alt+X" = {
+          action.spawn = [ "dms" "ipc" "call" "powermenu" "toggle" ];
+          hotkey-overlay.title = "DMS: Power Menu";
+        };
+        "Alt+P" = {
+          action.spawn = [ "dms" "ipc" "call" "processlist" "toggle" ];
+          hotkey-overlay.title = "DMS: Process List";
+        };
+
         # Media controls
         "XF86AudioPlay" = {
           allow-when-locked = true;
