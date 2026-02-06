@@ -94,6 +94,9 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
   };
 
+  # UPower for battery status (needed by DMS/quickshell)
+  services.upower.enable = true;
+
   # Mesa for virtio-gpu (gfxstream Vulkan + Zink for GL)
   hardware.graphics.enable = true;
 
