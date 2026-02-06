@@ -11,7 +11,7 @@
     settings = {
       outputs = {
         "Virtual-1" = {
-          scale = 1.0;
+          scale = 2.0;
           mode = {
             width = 1696;
             height = 1125;
