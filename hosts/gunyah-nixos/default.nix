@@ -66,15 +66,13 @@
       command = let
         niri-run = pkgs.writeShellScript "niri-run" ''
           unset DISPLAY
-          systemctl --user import-environment
-          systemctl --user unset-environment DISPLAY
-          systemctl --user set-environment LIBSEAT_BACKEND=seatd
-          systemctl --user set-environment LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+          export LIBSEAT_BACKEND=seatd
+          export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
             pkgs.xorg.libXcursor pkgs.xorg.libXi pkgs.xorg.libXrandr
             pkgs.xorg.libX11 pkgs.xorg.libXext pkgs.xorg.libXrender
             pkgs.xorg.libXfixes pkgs.xorg.libxcb pkgs.xorg.libXinerama
           ]}
-          exec systemctl --user --wait start niri.service
+          exec ${pkgs.niri}/bin/niri --session
         '';
       in "${niri-run}";
       user = "bluesign";
