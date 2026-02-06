@@ -144,7 +144,7 @@
     htop
     fzf
     firefox
-    google-chrome
+    chromium
 
     # Niri desktop
     niri
