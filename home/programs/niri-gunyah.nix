@@ -56,7 +56,7 @@
       };
 
       spawn-at-startup = [
-        { command = [ "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_RUNTIME_DIR" "DISPLAY" ]; }
+        { command = [ "sh" "-c" "systemctl --user import-environment PATH WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY XDG_SESSION_TYPE NIXOS_OZONE_WL && systemctl --user start graphical-session.target" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gnome.service" ]; }
       ];
 
