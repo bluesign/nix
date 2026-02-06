@@ -96,6 +96,11 @@
 
   # UPower for battery status (needed by DMS/quickshell)
   services.upower.enable = true;
+  # Gunyah kernel lacks user namespaces — disable sandboxing in upower unit
+  systemd.services.upower.serviceConfig = {
+    PrivateUsers = lib.mkForce false;
+    RestrictNamespaces = lib.mkForce false;
+  };
 
   # Mesa for virtio-gpu (gfxstream Vulkan + Zink for GL)
   hardware.graphics.enable = true;
