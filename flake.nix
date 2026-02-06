@@ -84,6 +84,7 @@
             ./hosts/gunyah-nixos
             {
               nixpkgs.overlays = [
+                claude-code.overlays.default
                 (final: prev: {
                   mesa = prev.mesa.overrideAttrs (oldAttrs: {
                     patches = (oldAttrs.patches or []) ++ [
@@ -92,6 +93,7 @@
                   });
                 })
               ];
+              environment.systemPackages = [ claude-code ];
             }
             home-manager.nixosModules.home-manager
             {
