@@ -14,7 +14,7 @@
           scale = 2.0;
           mode = {
             width = 1696;
-            height = 1125;
+            height = 1200;
           };
         };
       };
