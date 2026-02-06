@@ -129,6 +129,9 @@
   # Required by home-manager xdg portal config (from niri/desktop modules in user profile)
   environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
 
+  # Chromium SUID sandbox (kernel lacks user namespaces)
+  security.chromiumSuidSandbox.enable = true;
+
   # Sudo without password
   security.sudo.wheelNeedsPassword = false;
 
