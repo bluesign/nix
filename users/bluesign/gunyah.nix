@@ -82,6 +82,9 @@
     };
   };
 
+  # DMS: force software rendering (Qt scene graph crashes on virtio-gpu)
+  systemd.user.services.dms.Service.Environment = [ "QT_QUICK_BACKEND=software" ];
+
   programs.gpg.enable = true;
 
   programs.password-store = {
