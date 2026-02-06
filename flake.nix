@@ -99,7 +99,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { inherit inputs; };
-                sharedModules = [ ];  # no niri/nfsm/dms
+                sharedModules = [ niri.homeModules.niri ];
                 users.bluesign = import ./users/bluesign/gunyah.nix;
                 backupFileExtension = "hm-backup";
               };
