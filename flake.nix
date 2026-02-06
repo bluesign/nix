@@ -76,7 +76,7 @@
           users = [ "bluesign" ];
         };
 
-        # Gunyah/crosvm VM — lightweight, no Wayland stack
+        # Gunyah/crosvm VM — niri Wayland compositor
         gunyah-nixos = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           specialArgs = { inherit inputs; };

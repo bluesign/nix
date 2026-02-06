@@ -1,5 +1,5 @@
-# Lightweight bluesign user for gunyah-nixos VM
-# No Wayland/niri/dms — just CLI tools + XFCE-compatible packages
+# bluesign user for gunyah-nixos VM
+# CLI tools + niri Wayland compositor
 { config, lib, pkgs, ... }:
 
 {
@@ -52,6 +52,9 @@
     # Secrets
     gnupg
     pass
+
+    # GPU
+    vulkan-tools
 
     # System
     btop

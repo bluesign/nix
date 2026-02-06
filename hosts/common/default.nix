@@ -290,10 +290,10 @@ in
     };
   };
 
-  # Enable legacy SDP socket (needed by sdptool / bt-kvm SDP registration)
+  # Keep --compat for legacy SDP socket (useful for sdptool etc)
   systemd.services.bluetooth.serviceConfig.ExecStart = lib.mkForce [
     ""
-    "${pkgs.bluez}/libexec/bluetooth/bluetoothd --compat --noplugin=input"
+    "${pkgs.bluez}/libexec/bluetooth/bluetoothd --compat"
   ];
 
 

@@ -30,3 +30,15 @@ index 3333333..4444444 100644
      };
 
      VkEncoder* enc = (VkEncoder*)context;
+@@ -6920,7 +6922,9 @@ void ResourceTracker::on_vkUpdateDescriptorSetWithTemplate(
+                 VkDescriptorBufferInfo* internalBufferInfo =
+                     (VkDescriptorBufferInfo*)(((uint8_t*)bufferInfos) + currBufferInfoOffset);
+-                VK_FROM_HANDLE(gfxstream_vk_buffer, gfxstream_buffer, internalBufferInfo->buffer);
+-                internalBufferInfo->buffer = gfxstream_buffer->internal_object;
++                if (internalBufferInfo->buffer != VK_NULL_HANDLE) {
++                    VK_FROM_HANDLE(gfxstream_vk_buffer, gfxstream_buffer, internalBufferInfo->buffer);
++                    internalBufferInfo->buffer = gfxstream_buffer->internal_object;
++                }
+ #endif
+                 currBufferInfoOffset += sizeof(VkDescriptorBufferInfo);
+             }

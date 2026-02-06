@@ -48,44 +48,74 @@
     settings.PermitRootLogin = "yes";
   };
 
-  # X11 on virtio-gpu (/dev/dri/card0) — rendered by crosvm to termux-x11
-  services.xserver = {
+  # Niri Wayland compositor on virtio-gpu
+  services.greetd = {
     enable = true;
-    desktopManager.xfce.enable = true;
-    videoDrivers = [ "modesetting" ];
-  };
-
-  # Auto-login to XFCE (no display manager greeter)
-  services.displayManager = {
-    autoLogin = {
-      enable = true;
+    settings.default_session = {
+      command = let
+        niri-run = pkgs.writeShellScript "niri-run" ''
+          unset DISPLAY
+          export LIBSEAT_BACKEND=seatd
+          export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+            pkgs.xorg.libXcursor pkgs.xorg.libXi pkgs.xorg.libXrandr
+            pkgs.xorg.libX11 pkgs.xorg.libXext pkgs.xorg.libXrender
+            pkgs.xorg.libXfixes pkgs.xorg.libxcb pkgs.xorg.libXinerama
+          ]}
+          exec ${pkgs.niri}/bin/niri
+        '';
+      in "${niri-run}";
       user = "bluesign";
     };
   };
 
-  # Mesa for virtio-gpu (virgl 3D support)
+  # seatd for seat management
+  services.seatd = {
+    enable = true;
+    group = "video";
+  };
+
+  # Terminal
+  environment.variables.TERMINAL = "foot";
+
+  # XDG portal for niri (uses GNOME portal)
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
+  };
+
+  # Mesa for virtio-gpu (gfxstream Vulkan + Zink for GL)
   hardware.graphics.enable = true;
 
-  # x11vnc — share the real X display over VNC (port 5901)
-  systemd.services.x11vnc = {
-    description = "x11vnc VNC server";
-    after = [ "display-manager.service" ];
-    requires = [ "display-manager.service" ];
+  # gfxstream Vulkan ICD for Vulkan apps; desktop GL uses virgl (stable)
+  # Per-app gfxstream: MESA_LOADER_DRIVER_OVERRIDE=zink glxgears
+  environment.variables = {
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/gfxstream_vk_icd.aarch64.json";
+  };
+
+  # udev rules: seat tags for input devices, DRM/input permissions
+  services.udev.extraRules = ''
+    SUBSYSTEM=="input", KERNEL=="event*", TAG+="seat"
+    SUBSYSTEM=="input", KERNEL=="event*", MODE="0666"
+    SUBSYSTEM=="drm", MODE="0666"
+  '';
+
+  # Ensure /run/user/1000 exists for XDG_RUNTIME_DIR
+  systemd.tmpfiles.rules = [
+    "d /run/user/1000 0700 bluesign users -"
+  ];
+
+  # Disable kernel keyboard autorepeat (crosvm X11 input has delayed key releases)
+  systemd.services.disable-autorepeat = {
+    description = "Disable kernel keyboard autorepeat for crosvm";
+    after = [ "systemd-udev-settle.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-      ExecStart = lib.concatStringsSep " " [
-        "${pkgs.x11vnc}/bin/x11vnc"
-        "-display :0"
-        "-auth /var/run/lightdm/root/:0"
-        "-forever -nopw -noshm"
-        "-rfbport 5901"
-        "-ncache 10 -ncache_cr"
-        "-defer 10 -wait 10"
-        "-threads"
-      ];
-      Restart = "on-failure";
-      RestartSec = 5;
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "disable-autorepeat" ''
+        for dev in /dev/input/event*; do
+          ${pkgs.perl}/bin/perl -e 'use POSIX; my $rep = pack("LL", 10000, 100); ioctl(STDIN, 0x40084503, $rep)' < "$dev" 2>/dev/null || true
+        done
+      '';
     };
   };
 
@@ -102,13 +132,37 @@
     git
     htop
     firefox
-    chromium
+
+    # Niri desktop
+    niri
+    xwayland-satellite
+    foot              # terminal
+    xterm             # fallback terminal
+    grim              # screenshots
+    slurp             # region select
+    wl-clipboard      # clipboard
+
+    # GPU/display tools
+    mesa-demos        # glxinfo/glxgears
+    vulkan-tools
+    glmark2
+    evtest
+    wev
+
+    # X11 libs for niri runtime
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXrandr
+    xorg.libX11
+    xorg.libXext
+    xorg.libXrender
+    xorg.libXfixes
+    xorg.libxcb
+    xorg.libXinerama
 
     # VNC remote desktop
-    tigervnc
     novnc
     python3Packages.websockify
-    mesa-demos  # glxinfo/glxgears
   ];
 
   # User
@@ -116,7 +170,7 @@
 
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "audio" ];
+    extraGroups = [ "wheel" "video" "audio" "input" ];
     shell = pkgs.zsh;
     initialPassword = "nixos";
   };

@@ -101,9 +101,9 @@
   '';
   hardware.uinput.enable = true;  # Creates uinput group and sets up permissions
 
-  # Bluetooth KVM - relay keyboard/mouse to OnePlus Pad 3 via BT HID
+  # Bluetooth KVM - relay keyboard/mouse to OnePlus Pad 3 via BLE HOGP
   systemd.services.bt-kvm = {
-    description = "Bluetooth KVM input relay";
+    description = "Bluetooth KVM input relay (BLE HOGP)";
     after = [ "bluetooth.service" ];
     wants = [ "bluetooth.service" ];
     wantedBy = [ "multi-user.target" ];
@@ -111,6 +111,10 @@
       ExecStart = "/home/bluesign/src/synMaybe/bt-kvm -config /home/bluesign/src/synMaybe/config.toml";
       Restart = "on-failure";
       RestartSec = 3;
+      Nice = -10;
+      CPUSchedulingPolicy = "fifo";
+      CPUSchedulingPriority = 50;
+      IOSchedulingClass = "realtime";
     };
   };
 
