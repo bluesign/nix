@@ -118,7 +118,24 @@
                     ) oldAttrs.mesonFlags;
                   });
                 })
-                # Xwayland -shm handled via niri xwayland-satellite.path wrapper in niri-gunyah.nix
+                # Override xwayland-satellite to use Xwayland with -shm (DMA-BUF black on Gunyah)
+                (final: prev: let
+                  xwayland-shm = final.writeShellScriptBin "Xwayland" ''
+                    exec ${prev.xwayland}/bin/Xwayland -shm "$@"
+                  '';
+                in {
+                  xwayland-satellite = final.symlinkJoin {
+                    name = "xwayland-satellite-shm";
+                    paths = [ prev.xwayland-satellite ];
+                    nativeBuildInputs = [ final.makeWrapper ];
+                    postBuild = ''
+                      rm $out/bin/xwayland-satellite
+                      makeWrapper ${prev.xwayland-satellite}/bin/.xwayland-satellite-wrapped \
+                        $out/bin/xwayland-satellite \
+                        --prefix PATH : "${xwayland-shm}/bin"
+                    '';
+                  };
+                })
               ];
               environment.systemPackages = [ claude-code.packages.aarch64-linux.default ];
             }
