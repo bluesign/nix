@@ -118,19 +118,7 @@
                     ) oldAttrs.mesonFlags;
                   });
                 })
-                # Wrap Xwayland with -shm for Gunyah protected VM (DMA-BUF buffers are black)
-                (final: prev: {
-                  xwayland = prev.xwayland.overrideAttrs (old: {
-                    postFixup = (old.postFixup or "") + ''
-                      mv $out/bin/Xwayland $out/bin/.Xwayland-real
-                      cat > $out/bin/Xwayland <<'WRAPPER'
-#!/bin/sh
-exec "$(dirname "$0")/.Xwayland-real" -shm "$@"
-WRAPPER
-                      chmod +x $out/bin/Xwayland
-                    '';
-                  });
-                })
+                # Xwayland -shm handled via niri xwayland-satellite.path wrapper in niri-gunyah.nix
               ];
               environment.systemPackages = [ claude-code.packages.aarch64-linux.default ];
             }

@@ -3,6 +3,16 @@
 # Removed: dms, swayosd, nfsm, wl-kbptr, niri-float-sticky, google-chrome, keyboard backlight
 { config, lib, pkgs, ... }:
 
+let
+  # Wrapper that injects -shm into Xwayland (DMA-BUF buffers are black on Gunyah protected VM)
+  xwayland-shm = pkgs.writeShellScriptBin "Xwayland" ''
+    exec ${pkgs.xwayland}/bin/Xwayland -shm "$@"
+  '';
+  xwayland-satellite-shm = pkgs.writeShellScript "xwayland-satellite-shm" ''
+    export PATH="${xwayland-shm}/bin:$PATH"
+    exec ${pkgs.xwayland-satellite}/bin/xwayland-satellite "$@"
+  '';
+in
 {
   programs.niri = {
     enable = true;
@@ -343,6 +353,11 @@
 
         # Power off monitors
         "Alt+Shift+P".action.power-off-monitors = [];
+      };
+
+      # Use wrapped xwayland-satellite that injects -shm into Xwayland
+      xwayland-satellite = {
+        path = "${xwayland-satellite-shm}";
       };
 
       debug = {
