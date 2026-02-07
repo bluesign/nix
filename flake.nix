@@ -89,7 +89,31 @@
                   mesa = prev.mesa.overrideAttrs (oldAttrs: {
                     patches = (oldAttrs.patches or []) ++ [
                       ./patches/mesa-gfxstream-robustness2.patch
+                      ./patches/mesa-virgl-transfer-put.patch
                     ];
+                    outputs = builtins.filter (o: o != "spirv2dxil" && o != "opencl") oldAttrs.outputs;
+                    mesonFlags = map (f:
+                      if builtins.match "-Dgallium-drivers=.*" f != null then
+                        "-Dgallium-drivers=virgl,llvmpipe,softpipe,zink"
+                      else if builtins.match "-Dvulkan-drivers=.*" f != null then
+                        "-Dvulkan-drivers=gfxstream,virtio,swrast"
+                      else if builtins.match "-Dvulkan-layers=.*" f != null then
+                        "-Dvulkan-layers=device-select"
+                      else if builtins.match "-Dgallium-rusticl=.*" f != null then
+                        "-Dgallium-rusticl=false"
+                      else if builtins.match "-Dintel-rt=.*" f != null then
+                        "-Dintel-rt=disabled"
+                      else if builtins.match "-Dtools=.*" f != null then
+                        "-Dtools="
+                      else if builtins.match "-Dteflon=.*" f != null then
+                        "-Dteflon=false"
+                      else if builtins.match "-Dinstall-mesa-clc=.*" f != null then
+                        "-Dinstall-mesa-clc=false"
+                      else if builtins.match "-Dinstall-precomp-compiler=.*" f != null then
+                        "-Dinstall-precomp-compiler=false"
+                      else
+                        f
+                    ) oldAttrs.mesonFlags;
                   });
                 })
               ];

@@ -1,0 +1,25 @@
+diff --git a/src/gallium/drivers/virgl/virgl_transfer_queue.c b/src/gallium/drivers/virgl/virgl_transfer_queue.c
+index 0adfa07aa90..6dc53304988 100644
+--- a/src/gallium/drivers/virgl/virgl_transfer_queue.c
++++ b/src/gallium/drivers/virgl/virgl_transfer_queue.c
+@@ -248,8 +248,8 @@ static void add_internal(struct virgl_transfer_queue *queue,
+          struct virgl_winsys *vws = queue->vs->vws;
+
+          memset(&iter, 0, sizeof(iter));
+-         iter.action = transfer_write;
+-         iter.data = queue->tbuf;
++         iter.action = transfer_put;
++         //iter.data = queue->tbuf;
+          perform_action(queue, &iter);
+
+          vws->submit_cmd(vws, queue->tbuf, NULL);
+@@ -329,8 +329,7 @@ int virgl_transfer_queue_clear(struct virgl_transfer_queue *queue,
+       uint32_t prior_num_dwords = cbuf->cdw;
+       cbuf->cdw = 0;
+
+-      iter.action = transfer_write;
+-      iter.data = cbuf;
++      iter.action = transfer_put;
+       perform_action(queue, &iter);
+
+       virgl_encode_end_transfers(cbuf);
