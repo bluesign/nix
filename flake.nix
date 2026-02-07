@@ -92,10 +92,9 @@
                       ./patches/mesa-virgl-transfer-put.patch
                     ];
                     outputs = builtins.filter (o: o != "spirv2dxil" && o != "opencl") oldAttrs.outputs;
-                    postInstall = builtins.replaceStrings
-                      ["mkdir -p $out/etc/OpenCL/vendors"]
-                      ["# opencl disabled"]
-                      (oldAttrs.postInstall or "");
+                    postInstall = ''
+                      moveToOutput bin/vtn_bindgen2 $cross_tools
+                    '';
                     mesonFlags = map (f:
                       if builtins.match "-Dgallium-drivers=.*" f != null then
                         "-Dgallium-drivers=virgl,llvmpipe,softpipe,zink"
