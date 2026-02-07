@@ -91,10 +91,8 @@
                       ./patches/mesa-gfxstream-robustness2.patch
                       ./patches/mesa-virgl-transfer-put.patch
                     ];
-                    outputs = builtins.filter (o: o != "spirv2dxil" && o != "opencl") oldAttrs.outputs;
-                    postInstall = ''
-                      moveToOutput bin/vtn_bindgen2 $cross_tools
-                    '';
+                    outputs = builtins.filter (o: o != "spirv2dxil" && o != "opencl" && o != "cross_tools") oldAttrs.outputs;
+                    postInstall = "# minimal build - no extra outputs";
                     mesonFlags = map (f:
                       if builtins.match "-Dgallium-drivers=.*" f != null then
                         "-Dgallium-drivers=virgl,llvmpipe,softpipe,zink"
