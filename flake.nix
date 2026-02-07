@@ -90,6 +90,7 @@
                     patches = (oldAttrs.patches or []) ++ [
                       ./patches/mesa-gfxstream-robustness2.patch
                       ./patches/mesa-virgl-transfer-put.patch
+                      ./patches/mesa-gfxstream-formats.patch
                     ];
                     outputs = builtins.filter (o: o != "spirv2dxil" && o != "opencl" && o != "cross_tools") oldAttrs.outputs;
                     postInstall = "# minimal build - no extra outputs";
