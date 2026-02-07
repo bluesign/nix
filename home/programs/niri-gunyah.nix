@@ -356,7 +356,7 @@ in
       };
 
       # Use wrapped xwayland-satellite that injects -shm into Xwayland
-      xwayland-satellite = {
+      "xwayland-satellite" = {
         path = "${xwayland-satellite-shm}";
       };
 
