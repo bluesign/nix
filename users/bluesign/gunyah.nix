@@ -87,6 +87,7 @@
   systemd.user.services.dms.Install.WantedBy = lib.mkForce [ "default.target" ];
   systemd.user.services.dms.Unit.After = lib.mkForce [ "default.target" ];
   systemd.user.services.dms.Unit.PartOf = lib.mkForce [ "default.target" ];
+  systemd.user.services.dms.Service.Environment = [ "PATH=/etc/profiles/per-user/bluesign/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin" ];
 
   programs.gpg.enable = true;
 
