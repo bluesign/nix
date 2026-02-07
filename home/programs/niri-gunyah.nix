@@ -8,9 +8,10 @@ let
   xwayland-shm = pkgs.writeShellScriptBin "Xwayland" ''
     exec ${pkgs.xwayland}/bin/Xwayland -shm "$@"
   '';
+  # Bypass the C wrapper (which --prefix PATH with unwrapped Xwayland) and exec the real binary
   xwayland-satellite-shm = pkgs.writeShellScript "xwayland-satellite-shm" ''
     export PATH="${xwayland-shm}/bin:$PATH"
-    exec ${pkgs.xwayland-satellite}/bin/xwayland-satellite "$@"
+    exec ${pkgs.xwayland-satellite}/bin/.xwayland-satellite-wrapped "$@"
   '';
 in
 {
