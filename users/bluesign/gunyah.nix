@@ -82,10 +82,6 @@
     };
   };
 
-  # DMS: force software rendering — virgl rejects Qt's GL commands
-  # (VIRTIO_GPU_CMD_SUBMIT_3D → RESP_ERR_UNSPEC, causes crash ~10s after launch)
-  systemd.user.services.dms.Service.Environment = [ "QT_QUICK_BACKEND=software" ];
-
   # DMS: auto-start on default.target (graphical-session.target doesn't activate
   # when niri is launched directly by greetd rather than through systemd)
   systemd.user.services.dms.Install.WantedBy = lib.mkForce [ "default.target" ];
