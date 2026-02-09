@@ -105,10 +105,9 @@
   # Mesa for virtio-gpu (gfxstream Vulkan + Zink for GL)
   hardware.graphics.enable = true;
 
-  # gfxstream Vulkan ICD for Vulkan apps; desktop GL uses virgl (stable)
-  # Per-app gfxstream: MESA_LOADER_DRIVER_OVERRIDE=zink glxgears
+  # Venus Vulkan ICD for Vulkan passthrough; desktop GL uses virgl (stable)
   environment.variables = {
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/gfxstream_vk_icd.aarch64.json";
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/virtio_icd.aarch64.json";
   };
 
   # udev rules: seat tags for input devices, DRM/input permissions
@@ -172,6 +171,9 @@
     brightnessctl     # brightness control
     swaylock          # screen locker
     swaybg            # wallpaper
+
+    # x86_64 emulation
+    fex               # FEX-Emu: run x86_64 binaries on aarch64
 
     # GPU/display tools
     mesa-demos        # glxinfo/glxgears

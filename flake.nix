@@ -153,6 +153,13 @@
           ];
         };
 
+        # Native NixOS on OnePlus Pad 3 — minimal, no home-manager
+        pad-nixos = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [ ./hosts/pad-nixos ];
+        };
+
         # Minimal recovery system - no home-manager needed
         recovery = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
