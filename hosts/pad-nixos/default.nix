@@ -85,38 +85,15 @@
     };
   };
 
-  # Networking — USB gadget (native boot) + eth0 (VM fallback)
+  # Networking — eth0 for VM
   networking = {
     useDHCP = false;
     interfaces.eth0 = {
       ipv4.addresses = [{ address = "192.168.8.3"; prefixLength = 24; }];
     };
-    interfaces.usb0 = {
-      ipv4.addresses = [{ address = "192.168.42.2"; prefixLength = 24; }];
-    };
     defaultGateway = "192.168.8.1";
     nameservers = [ "8.8.8.8" "8.8.4.4" ];
     firewall.enable = false;
-  };
-
-  # USB gadget Ethernet — load g_ether module for USB networking
-  systemd.services.usb-gadget = {
-    description = "USB Gadget Ethernet";
-    wantedBy = [ "network-pre.target" ];
-    before = [ "network-pre.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "usb-gadget-setup" ''
-        # Try loading USB gadget modules (may already be loaded by vendor modules)
-        modprobe g_ether 2>/dev/null || true
-        # Wait for usb0 to appear
-        for i in $(seq 1 10); do
-          [ -d /sys/class/net/usb0 ] && break
-          sleep 1
-        done
-      '';
-    };
   };
 
   # SSH server
