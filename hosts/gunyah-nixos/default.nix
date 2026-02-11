@@ -110,11 +110,12 @@
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/virtio_icd.aarch64.json";
   };
 
-  # udev rules: seat tags for input devices, DRM/input permissions
+  # udev rules: seat tags for input devices, DRM/input permissions, readahead
   services.udev.extraRules = ''
     SUBSYSTEM=="input", KERNEL=="event*", TAG+="seat"
     SUBSYSTEM=="input", KERNEL=="event*", MODE="0666"
     SUBSYSTEM=="drm", MODE="0666"
+    SUBSYSTEM=="block", KERNEL=="vda", ATTR{queue/read_ahead_kb}="4096"
   '';
 
   # Ensure /run/user/1000 exists for XDG_RUNTIME_DIR
@@ -224,6 +225,54 @@
       rgba = "rgb";
       lcdfilter = "default";
     };
+  };
+
+  # --- LAN proxyarp: secondary IP from kernel cmdline ---
+  # Start script passes vm_lan_ip=x.x.x.x vm_lan_gw=x.x.x.x vm_lan_prefix=24
+  systemd.services.vm-lan-ip = {
+    description = "Configure LAN IP from kernel cmdline (proxyarp)";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "vm-lan-ip" ''
+        CMDLINE=$(cat /proc/cmdline)
+
+        VM_LAN_IP=""
+        VM_LAN_GW=""
+        VM_LAN_PREFIX="24"
+        for param in $CMDLINE; do
+          case "$param" in
+            vm_lan_ip=*) VM_LAN_IP="''${param#vm_lan_ip=}" ;;
+            vm_lan_gw=*) VM_LAN_GW="''${param#vm_lan_gw=}" ;;
+            vm_lan_prefix=*) VM_LAN_PREFIX="''${param#vm_lan_prefix=}" ;;
+          esac
+        done
+
+        if [ -z "$VM_LAN_IP" ] || [ -z "$VM_LAN_GW" ]; then
+          echo "No vm_lan_ip or vm_lan_gw in kernel cmdline, skipping"
+          exit 0
+        fi
+
+        echo "Adding LAN IP $VM_LAN_IP/$VM_LAN_PREFIX via gateway $VM_LAN_GW"
+        ${pkgs.iproute2}/bin/ip addr add "$VM_LAN_IP/$VM_LAN_PREFIX" dev eth0 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip route add default via "$VM_LAN_GW" dev eth0 src "$VM_LAN_IP" metric 50 2>/dev/null || true
+        echo "LAN IP configured"
+      '';
+    };
+  };
+
+  # --- Performance tunings for virtio VM ---
+
+  boot.kernel.sysctl = {
+    # Low swappiness — prefer keeping pages in RAM over swapping to slow virtio-blk
+    "vm.swappiness" = 10;
+    # Reduce vfs cache pressure to keep dentries/inodes cached
+    "vm.vfs_cache_pressure" = 50;
+    # Dirty page tuning — flush sooner to avoid big I/O stalls
+    "vm.dirty_ratio" = 10;
+    "vm.dirty_background_ratio" = 5;
   };
 
   system.stateVersion = "25.11";
