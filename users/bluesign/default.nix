@@ -38,6 +38,15 @@ in
     };
   };
 
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "chromium-browser.desktop";
+      "x-scheme-handler/http" = "chromium-browser.desktop";
+      "x-scheme-handler/https" = "chromium-browser.desktop";
+    };
+  };
+
   xdg.configFile = builtins.mapAttrs (name: subpath: {
     source = create_symlink "${dotfiles}/${subpath}";
     recursive = true;
@@ -47,6 +56,7 @@ in
   # User-specific packages
   home.packages = with pkgs; [
     # Desktop
+    firefox
     fuzzel
     bluetuith
     claude-code

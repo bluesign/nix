@@ -21,7 +21,7 @@
 
       input = {
         keyboard = {
-          xkb = {};
+          xkb.options = "ctrl:nocaps";
         };
         mouse = {};
       };
@@ -59,6 +59,10 @@
         { command = [ "sh" "-c" "systemctl --user import-environment PATH WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY XDG_SESSION_TYPE NIXOS_OZONE_WL && systemctl --user start graphical-session.target" ]; }
         { command = [ "systemctl" "--user" "start" "xdg-desktop-portal-gnome.service" ]; }
         { command = [ "swaybg" "-i" "/home/bluesign/shared/wallpaper.png" "-m" "fill" ]; }
+        { command = [ "swayidle" "-w"
+            "timeout" "300" "foot --fullscreen -e cmatrix -b"
+            "resume" "pkill cmatrix"
+          ]; }
       ];
 
       prefer-no-csd = true;
@@ -117,7 +121,7 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = [ "chromium" "--no-sandbox" "--ozone-platform=wayland" "--disable-gpu" ];
+          action.spawn = [ "chromium" "--ozone-platform=wayland" "--disable-gpu" ];
           hotkey-overlay.title = "Open Browser: Chromium";
         };
 

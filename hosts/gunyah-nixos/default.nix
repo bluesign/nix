@@ -33,8 +33,24 @@
       prefixLength = 24;
     }];
     defaultGateway = "192.168.8.1";
-    nameservers = [ "8.8.8.8" "8.8.4.4" ];
+    nameservers = [ "8.8.8.8" "8.8.4.4" "100.100.100.100" ];
     firewall.enable = false;
+    extraHosts = ''
+      100.125.127.68 vault vault.tail696a4.ts.net
+    '';
+  };
+
+  # Route to Tailscale subnet via host (host runs Tailscale)
+  systemd.services.tailscale-route = {
+    description = "Add route to Tailscale subnet via host";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.iproute2}/bin/ip route replace 100.64.0.0/10 via 192.168.8.1";
+      ExecStop = "${pkgs.iproute2}/bin/ip route del 100.64.0.0/10 via 192.168.8.1";
+    };
   };
 
   # Nix settings
@@ -144,6 +160,13 @@
   # Chromium SUID sandbox (kernel lacks user namespaces)
   security.chromiumSuidSandbox.enable = true;
 
+  # Disable Chromium built-in password manager (using Bitwarden instead)
+  programs.chromium.extraOpts = {
+    PasswordManagerEnabled = false;
+    AutofillCreditCardEnabled = false;
+    AutofillAddressEnabled = false;
+  };
+
   # Sudo without password
   security.sudo.wheelNeedsPassword = false;
 
@@ -170,7 +193,8 @@
     wlr-randr         # display management
     playerctl         # media control
     brightnessctl     # brightness control
-    swaylock          # screen locker
+    swayidle          # idle manager
+    cmatrix           # matrix screensaver
     swaybg            # wallpaper
 
     # x86_64 emulation
