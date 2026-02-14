@@ -105,10 +105,8 @@
   # Mesa for virtio-gpu (gfxstream Vulkan + Zink for GL)
   hardware.graphics.enable = true;
 
-  # Venus Vulkan ICD for Vulkan passthrough; desktop GL uses virgl (stable)
-  environment.variables = {
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/virtio_icd.aarch64.json";
-  };
+  # Force gfxstream Vulkan ICD (not Venus/lavapipe)
+  environment.variables.VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/gfxstream_vk_icd.aarch64.json";
 
   # udev rules: seat tags for input devices, DRM/input permissions
   services.udev.extraRules = ''
