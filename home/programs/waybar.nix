@@ -204,7 +204,7 @@ in
           tooltip-format = "{controller_alias}\n{num_connections} connected";
           tooltip-format-connected = "{controller_alias}\n{num_connections} connected\n\n{device_enumerate}";
           tooltip-format-enumerate-connected = "{device_alias}";
-          on-click = "blueman-manager";
+          on-click = "bluetoothctl";
         };
 
         mpris = {
@@ -424,7 +424,6 @@ in
     networkmanager
     pwvucontrol
     pavucontrol
-    blueman
     libnotify
     power-profiles-daemon
     wlogout

@@ -59,9 +59,12 @@ in
     yazi          # Terminal file manager with image preview
     imv           # Fast Wayland image viewer
     wl-kbptr      # Keyboard pointer control for Wayland
+    obsidian      # Markdown knowledge base
+    telegram-desktop  # Telegram messenger
 
     # Dev
     neovim
+    codex
     gemini-cli
     sqlite
     google-cloud-sdk

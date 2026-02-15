@@ -1,0 +1,20 @@
+diff --git a/src/backend/winit.rs b/src/backend/winit.rs
+index 92132bd..7b42dac 100644
+--- a/src/backend/winit.rs
++++ b/src/backend/winit.rs
+@@ -162,6 +162,15 @@ impl Winit {
+ 
+         niri.update_shaders();
+ 
++        // Create dmabuf global so GPU clients can share buffers directly.
++        let dmabuf_formats = renderer.dmabuf_formats();
++        if !dmabuf_formats.is_empty() {
++            niri.dmabuf_state.create_global::<State>(
++                &niri.display_handle,
++                dmabuf_formats,
++            );
++        }
++
+         niri.add_output(self.output.clone(), None, false);
+     }
+ 

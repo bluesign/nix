@@ -72,10 +72,10 @@
       window-rules = [
         {
           draw-border-with-background = false;
-          geometry-corner-radius = let r = 8.0; in {
+          geometry-corner-radius = let r = 0.0; in {
             top-left = r; top-right = r; bottom-left = r; bottom-right = r;
           };
-          clip-to-geometry = true;
+          clip-to-geometry = false;
         }
         {
           matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
@@ -91,7 +91,7 @@
         }
         {
           matches = [{ is-focused = false; }];
-          opacity = 0.80;
+          opacity = 1.0;
         }
         {
           matches = [{ is-floating = true; }];
@@ -117,7 +117,7 @@
           hotkey-overlay.title = "Open Terminal: alacritty";
         };
         "Alt+U" = {
-          action.spawn = [ "chromium" "--no-sandbox" "--ozone-platform=wayland" "--disable-gpu" ];
+          action.spawn = [ "chromium" "--no-sandbox" "--ozone-platform=wayland" ];
           hotkey-overlay.title = "Open Browser: Chromium";
         };
 

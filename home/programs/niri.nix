@@ -37,6 +37,13 @@ in
     enableCli = true;
   };
 
+  # Fix nfsm service: pass NIRI_SOCKET from session environment and restart on failure
+  systemd.user.services.nfsm.Service = {
+    Restart = "on-failure";
+    RestartSec = 2;
+    PassEnvironment = [ "NIRI_SOCKET" ];
+  };
+
   programs.niri = {
     enable = true;
     # Use niri-flake for latest features (like set-window-opacity)

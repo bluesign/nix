@@ -34,8 +34,7 @@
     swaybg                # Wallpaper
   ];
 
-  # Blueman applet (bluetooth config is in hosts/common)
-  services.blueman.enable = true;
+
 
   xdg.autostart.enable = true;
   xdg.portal = {

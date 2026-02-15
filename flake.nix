@@ -85,6 +85,14 @@
             {
               nixpkgs.overlays = [
                 claude-code.overlays.default
+                # Patch niri to advertise zwp_linux_dmabuf_v1 on winit backend
+                (final: prev: {
+                  niri = prev.niri.overrideAttrs (oldAttrs: {
+                    patches = (oldAttrs.patches or []) ++ [
+                      ./patches/niri-winit-dmabuf.patch
+                    ];
+                  });
+                })
                 (final: prev: {
                   mesa = prev.mesa.overrideAttrs (oldAttrs: {
                     patches = (oldAttrs.patches or []) ++ [
@@ -98,7 +106,7 @@
                       if builtins.match "-Dgallium-drivers=.*" f != null then
                         "-Dgallium-drivers=virgl,llvmpipe,softpipe,zink"
                       else if builtins.match "-Dvulkan-drivers=.*" f != null then
-                        "-Dvulkan-drivers=gfxstream,virtio,swrast"
+                        "-Dvulkan-drivers=gfxstream,virtio,freedreno,swrast"
                       else if builtins.match "-Dvulkan-layers=.*" f != null then
                         "-Dvulkan-layers=device-select"
                       else if builtins.match "-Dgallium-rusticl=.*" f != null then

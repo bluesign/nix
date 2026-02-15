@@ -138,6 +138,32 @@
   # Required by home-manager xdg portal config (from niri/desktop modules in user profile)
   environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
 
+  # Disable suspend/sleep — Gunyah watchdog kills the device if vCPUs idle too long
+  systemd.targets.sleep.enable = false;
+  systemd.targets.suspend.enable = false;
+  systemd.targets.hibernate.enable = false;
+  systemd.targets.hybrid-sleep.enable = false;
+  services.logind.extraConfig = ''
+    IdleAction=ignore
+    HandleSuspendKey=ignore
+    HandleHibernateKey=ignore
+  '';
+
+  # Watchdog keepalive — prevent vCPU WFI from triggering Gunyah watchdog
+  systemd.services.watchdog-keepalive = {
+    description = "Keep vCPU active to prevent Gunyah watchdog timeout";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = pkgs.writeShellScript "watchdog-keepalive" ''
+        while true; do
+          sleep 30
+        done
+      '';
+      Restart = "always";
+    };
+  };
+
   # Chromium SUID sandbox (kernel lacks user namespaces)
   security.chromiumSuidSandbox.enable = true;
 

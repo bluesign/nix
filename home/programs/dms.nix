@@ -276,7 +276,6 @@
     networkmanager
     pwvucontrol
     pavucontrol
-    blueman
     libnotify
     power-profiles-daemon
     curl
