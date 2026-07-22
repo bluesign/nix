@@ -7,6 +7,7 @@
     ../common
     ../../modules/desktop
     ../../modules/flow
+    ../../modules/gamedev
   ];
 
   networking.hostName = "blueminix";
@@ -118,10 +119,100 @@
     };
   };
 
+  # Docker for containerized services (Penpot, etc.)
+  virtualisation.docker.enable = true;
+
+  # Penpot (self-hosted design tool)
+  virtualisation.oci-containers.backend = "docker";
+  virtualisation.oci-containers.containers = {
+    penpot-postgres = {
+      image = "postgres:15";
+      environment = {
+        POSTGRES_DB = "penpot";
+        POSTGRES_USER = "penpot";
+        POSTGRES_PASSWORD = "penpot";
+      };
+      volumes = [ "penpot-postgres:/var/lib/postgresql/data" ];
+      extraOptions = [ "--network=penpot" ];
+    };
+
+    penpot-redis = {
+      image = "redis:7";
+      extraOptions = [ "--network=penpot" ];
+    };
+
+    penpot-backend = {
+      image = "penpotapp/backend:latest";
+      dependsOn = [ "penpot-postgres" "penpot-redis" ];
+      environment = {
+        PENPOT_FLAGS = "enable-registration enable-login-with-password disable-email-verification enable-smtp enable-prepl-server disable-secure-session-cookies enable-access-tokens";
+        PENPOT_PUBLIC_URI = "http://blueminix:9001";
+        PENPOT_DATABASE_URI = "postgresql://penpot-postgres/penpot";
+        PENPOT_DATABASE_USERNAME = "penpot";
+        PENPOT_DATABASE_PASSWORD = "penpot";
+        PENPOT_REDIS_URI = "redis://penpot-redis/0";
+        # Storage config (2.11+ format)
+        PENPOT_OBJECTS_STORAGE_BACKEND = "fs";
+        PENPOT_OBJECTS_STORAGE_FS_DIRECTORY = "/opt/data/assets";
+        # Deprecated but keep for backwards compat during transition
+        PENPOT_ASSETS_STORAGE_BACKEND = "assets-fs";
+        PENPOT_STORAGE_ASSETS_FS_DIRECTORY = "/opt/data/assets";
+        PENPOT_TELEMETRY_ENABLED = "false";
+        PENPOT_SMTP_ENABLED = "false";
+        PENPOT_SECRET_KEY = "f939a3befa456eac9d50c22787fa90b84a6bf90332004221117d4879d81122f3";
+      };
+      volumes = [ "penpot-assets:/opt/data/assets" ];
+      extraOptions = [ "--network=penpot" ];
+    };
+
+    penpot-frontend = {
+      image = "penpotapp/frontend:latest";
+      dependsOn = [ "penpot-backend" "penpot-exporter" ];
+      ports = [ "9001:8080" ];
+      environment = {
+        PENPOT_FLAGS = "enable-registration enable-login-with-password disable-email-verification";
+      };
+      volumes = [ "penpot-assets:/opt/data/assets" ];
+      extraOptions = [ "--network=penpot" ];
+    };
+
+    penpot-exporter = {
+      image = "penpotapp/exporter:latest";
+      dependsOn = [ "penpot-redis" ];
+      environment = {
+        PENPOT_PUBLIC_URI = "http://penpot-frontend:8080";
+        PENPOT_REDIS_URI = "redis://penpot-redis/0";
+        PENPOT_SECRET_KEY = "f939a3befa456eac9d50c22787fa90b84a6bf90332004221117d4879d81122f3";
+      };
+      extraOptions = [ "--network=penpot" ];
+    };
+  };
+
+  # Create penpot Docker network
+  systemd.services.docker-penpot-network = {
+    description = "Create Docker network for Penpot";
+    after = [ "docker.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      ${pkgs.docker}/bin/docker network inspect penpot >/dev/null 2>&1 || ${pkgs.docker}/bin/docker network create penpot
+    '';
+  };
+
+  # Ensure containers start after network is created
+  systemd.services.docker-penpot-postgres.after = [ "docker-penpot-network.service" ];
+  systemd.services.docker-penpot-redis.after = [ "docker-penpot-network.service" ];
+  systemd.services.docker-penpot-backend.after = [ "docker-penpot-network.service" ];
+  systemd.services.docker-penpot-frontend.after = [ "docker-penpot-network.service" ];
+  systemd.services.docker-penpot-exporter.after = [ "docker-penpot-network.service" ];
+
   users.users.bluesign = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "keyd" "uinput" "video" ];  # uinput for Sunshine, video for webcam
-    packages = with pkgs; [ tree ];
+    extraGroups = [ "wheel" "keyd" "uinput" "video" "docker" ];  # uinput for Sunshine, video for webcam, docker for container management
+    packages = with pkgs; [ tree unityhub ];
     shell = pkgs.zsh;
   };
 

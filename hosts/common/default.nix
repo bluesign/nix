@@ -95,6 +95,48 @@ in
   programs.zsh.autosuggestions.enable = true;
   programs.zsh.syntaxHighlighting.enable = true;
 
+  # nix-ld: run non-NixOS binaries (JetBrains Toolbox, etc.)
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    zlib
+    zstd
+    wayland
+    libxkbcommon
+    stdenv.cc.cc.lib
+    fontconfig
+    freetype
+    libGL
+    mesa
+    alsa-lib
+    cups
+    dbus
+    expat
+    glib
+    gtk3
+    nss
+    nspr
+    pango
+    cairo
+    atk
+    at-spi2-atk
+    libdrm
+    systemdLibs
+    sqlite
+    xorg.libX11
+    xorg.libXext
+    xorg.libXi
+    xorg.libXrender
+    xorg.libXtst
+    xorg.libxcb
+    xorg.libXcomposite
+    xorg.libXcursor
+    xorg.libXdamage
+    xorg.libXfixes
+    xorg.libXrandr
+    xorg.libXxf86vm
+    gdk-pixbuf
+  ];
+
   # Core packages
   environment.systemPackages = with pkgs; [
     vim
@@ -162,6 +204,14 @@ in
           update-props = {
             session.suspend-timeout-seconds = 0
             node.pause-on-idle = false
+          }
+        }
+      }
+      {
+        matches = [ { device.name = "bluez_card.7C_F0_E5_9C_76_00" } ]
+        actions = {
+          update-props = {
+            bluez5.avrcp.absolute-volume = false
           }
         }
       }
@@ -332,5 +382,10 @@ in
     enable = true;
     nssmdns4 = true;
     openFirewall = true;
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+    };
   };
 }

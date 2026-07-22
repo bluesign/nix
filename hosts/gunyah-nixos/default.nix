@@ -1,6 +1,6 @@
 # Host: gunyah-nixos — NixOS VM for Gunyah/crosvm on OnePlus 13
 # Standalone lightweight VM config — does NOT import ../common or ../../modules/desktop
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -59,9 +59,9 @@
     settings.PermitRootLogin = "yes";
   };
 
-  # Niri Wayland compositor on virtio-gpu
+  # Niri Wayland compositor on virtio-gpu (DISABLED — wprs apps don't need a compositor on VM)
   services.greetd = {
-    enable = true;
+    enable = false;
     settings.default_session = {
       command = let
         niri-run = pkgs.writeShellScript "niri-run" ''
@@ -108,6 +108,16 @@
   # Force gfxstream Vulkan ICD (not Venus/lavapipe)
   environment.variables.VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/gfxstream_vk_icd.aarch64.json";
 
+  # Prefer Wayland backends for all toolkits (X11/Xwayland has no DRI3 → llvmpipe)
+  environment.sessionVariables = {
+    SDL_VIDEODRIVER = "wayland";
+    QT_QPA_PLATFORM = "wayland";
+    GDK_BACKEND = "wayland";
+    MOZ_ENABLE_WAYLAND = "1";
+    CLUTTER_BACKEND = "wayland";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
+  };
+
   # udev rules: seat tags for input devices, DRM/input permissions
   services.udev.extraRules = ''
     SUBSYSTEM=="input", KERNEL=="event*", TAG+="seat"
@@ -143,11 +153,11 @@
   systemd.targets.suspend.enable = false;
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
-  services.logind.extraConfig = ''
-    IdleAction=ignore
-    HandleSuspendKey=ignore
-    HandleHibernateKey=ignore
-  '';
+  services.logind.settings.Login = {
+    IdleAction = "ignore";
+    HandleSuspendKey = "ignore";
+    HandleHibernateKey = "ignore";
+  };
 
   # Watchdog keepalive — prevent vCPU WFI from triggering Gunyah watchdog
   systemd.services.watchdog-keepalive = {
@@ -166,6 +176,10 @@
 
   # Chromium SUID sandbox (kernel lacks user namespaces)
   security.chromiumSuidSandbox.enable = true;
+
+  # Chromium/Electron: use Wayland but with safe GPU (virglrenderer can't handle full Chrome GPU)
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  environment.variables.CHROMIUM_USER_FLAGS = "--disable-gpu-compositing --disable-gpu-rasterization";
 
   # Sudo without password
   security.sudo.wheelNeedsPassword = false;
@@ -195,6 +209,7 @@
     brightnessctl     # brightness control
     swaylock          # screen locker
     swaybg            # wallpaper
+    libnotify         # notifications (notify-send)
 
     # x86_64 emulation
     fex               # FEX-Emu: run x86_64 binaries on aarch64
@@ -221,6 +236,8 @@
     novnc
     python3Packages.websockify
 
+    # (android-window / android-app / android-app-picker removed — use scrcpy instead)
+
     # Put.io TUI client
     (pkgs.callPackage ../../pkgs/putio { })
   ];
@@ -235,20 +252,31 @@
     initialPassword = "nixos";
   };
 
-  # Fonts
-  fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
+  # Fonts — macOS Tahoe-style
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+    inputs.apple-fonts.packages.${pkgs.system}.sf-pro
+    inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd
+    inputs.apple-fonts.packages.${pkgs.system}.ny
+  ];
   fonts.fontconfig = {
     enable = true;
     antialias = true;
     hinting = {
       enable = true;
-      style = "full";
+      style = "slight";
     };
     subpixel = {
-      rgba = "rgb";
-      lcdfilter = "default";
+      rgba = "none";
+      lcdfilter = "none";
+    };
+    defaultFonts = {
+      sansSerif = [ "SF Pro Display" ];
+      serif = [ "New York" ];
+      monospace = [ "SFMono Nerd Font" ];
     };
   };
+  environment.variables.FREETYPE_PROPERTIES = "cff:no-stem-darkening=0 autofitter:no-stem-darkening=0";
 
   system.stateVersion = "25.11";
 }

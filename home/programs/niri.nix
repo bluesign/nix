@@ -8,6 +8,7 @@ in
 {
   home.packages = [
     inputs.niri-float-sticky.packages.${pkgs.system}.default
+    pkgs.xdg-desktop-portal-gtk  # Needed in user profile so NIX_XDG_DESKTOP_PORTAL_DIR finds gtk.portal
   ];
 
   # Idle management: lock screen after 5 minutes
@@ -159,21 +160,6 @@ in
           matches = [{ app-id = "^imv$"; }];
           open-floating = true;
         }
-        {
-          # Focused windows fully opaque
-          matches = [{ is-focused = true; }];
-          opacity = 1.0;
-        }
-        {
-          # Unfocused windows semi-transparent
-          matches = [{ is-focused = false; }];
-          opacity = 0.80;
-        }
-        {
-          # Floating windows fully opaque
-          matches = [{ is-floating = true; }];
-          opacity = 1.0;
-        }
       ];
 
       binds = {
@@ -284,6 +270,9 @@ in
         # Overview
         "Mod+O" = {
           repeat = false;
+          action.toggle-overview = [];
+        };
+        "MouseMiddle" = {
           action.toggle-overview = [];
         };
         # Note: "Mod" with trigger=on-release for cancel-overview is not supported
@@ -448,9 +437,6 @@ in
         # Floating
         "Mod+V".action.toggle-window-floating = [];
         "Mod+Shift+V".action.switch-focus-between-floating-and-tiling = [];
-
-        # Toggle window opacity (toggles the opacity rule on/off)
-        "Mod+Shift+O".action.toggle-window-rule-opacity = [];
 
         # Tabbed mode
         "Mod+W".action.toggle-column-tabbed-display = [];

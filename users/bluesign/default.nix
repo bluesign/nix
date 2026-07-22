@@ -1,6 +1,6 @@
 # User: bluesign
 # To add a new user, copy this file to users/<username>/default.nix
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/nixos-dotfiles/config";
@@ -35,6 +35,8 @@ in
     sessionVariables = {
       EDITOR = "nvim";
       NCHAT_IMAGES = "1";  # Enable kitty image support in nchat
+      _JAVA_AWT_WM_NONREPARENTING = "1";  # Fix Java/Swing apps on Wayland (Ghidra etc.)
+      GHIDRA_INSTALL_DIR = "${pkgs.ghidra}/lib/ghidra";
     };
   };
 
@@ -61,6 +63,11 @@ in
     wl-kbptr      # Keyboard pointer control for Wayland
     obsidian      # Markdown knowledge base
     telegram-desktop  # Telegram messenger
+    fractal           # Matrix chat client (Wayland-native, GTK4)
+    qutebrowser       # Keyboard-driven Qt6 web browser (Wayland-native)
+
+    # Reverse engineering
+    ghidra
 
     # Dev
     neovim
@@ -84,6 +91,7 @@ in
     nixd
     nixpkgs-fmt
     (python3.withPackages (ps: with ps; [ requests pypdf reportlab ]))
+    (pkgs.callPackage ../../pkgs/pyghidra { })
     pipx          # Install Python apps in isolated environments
 
     # Apps
@@ -120,11 +128,18 @@ in
     scrcpy          # Screen mirroring and control
     android-tools   # ADB for device communication
     sshfs           # SFTP filesystem mount (required for Valent phone browsing)
+    waypipe         # Wayland remote display (used by niri-android launch-remote-app)
+    foot            # Wayland terminal emulator
   ] ++ lib.optionals stdenv.hostPlatform.isx86_64 [
     # x86_64-only packages
     vscode
+    jetbrains-toolbox
     google-chrome
+    inputs.zen-browser.packages.${pkgs.system}.default  # Zen browser (Firefox fork)
     discord-ptb
+    godot_4       # Game engine with Wayland support
+    blender       # 3D modeling and rendering
+    hypnotix      # IPTV streaming player
   ];
 
   programs.git.settings = {

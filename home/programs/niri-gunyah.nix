@@ -86,16 +86,8 @@
           open-floating = true;
         }
         {
-          matches = [{ is-focused = true; }];
-          opacity = 1.0;
-        }
-        {
-          matches = [{ is-focused = false; }];
-          opacity = 1.0;
-        }
-        {
-          matches = [{ is-floating = true; }];
-          opacity = 1.0;
+          matches = [{ app-id = "^scrcpy$"; }];
+          default-column-width = { proportion = 0.5; };
         }
       ];
 
@@ -119,6 +111,12 @@
         "Alt+U" = {
           action.spawn = [ "chromium" "--no-sandbox" "--ozone-platform=wayland" ];
           hotkey-overlay.title = "Open Browser: Chromium";
+        };
+
+        # Android apps (via scrcpy virtual display)
+        "Alt+Shift+A" = {
+          action.spawn = "android-app-picker";
+          hotkey-overlay.title = "Launch Android App";
         };
 
         # DMS panels

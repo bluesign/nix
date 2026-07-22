@@ -1,5 +1,5 @@
 # Desktop environment module (Niri + Ags)
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   programs.firefox.enable = true;
@@ -52,25 +52,39 @@
       # niri supports both GNOME (Mutter.ScreenCast) and wlr portals
       niri = {
         default = [ "gnome" "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
         "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
         "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
       };
     };
   };
 
-  fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+    inputs.apple-fonts.packages.${pkgs.system}.sf-pro
+    inputs.apple-fonts.packages.${pkgs.system}.sf-mono-nerd
+    inputs.apple-fonts.packages.${pkgs.system}.ny
+  ];
 
-  # Font rendering for crisp text
+  # macOS Tahoe-style font rendering
   fonts.fontconfig = {
     enable = true;
     antialias = true;
     hinting = {
       enable = true;
-      style = "full";
+      style = "slight";
     };
     subpixel = {
-      rgba = "rgb";
-      lcdfilter = "default";
+      rgba = "none";
+      lcdfilter = "none";
+    };
+    defaultFonts = {
+      sansSerif = [ "SF Pro Display" ];
+      serif = [ "New York" ];
+      monospace = [ "SFMono Nerd Font" ];
     };
   };
+
+  # FreeType stem darkening — emulates macOS font dilation (bolder, smoother glyphs)
+  environment.variables.FREETYPE_PROPERTIES = "cff:no-stem-darkening=0 autofitter:no-stem-darkening=0";
 }

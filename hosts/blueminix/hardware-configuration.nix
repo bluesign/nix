@@ -30,4 +30,14 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+services.udev.packages = [
+  (pkgs.writeTextFile {
+    name = "samsung-udev-rules";
+    destination = "/etc/udev/rules.d/51-android.rules";
+    text = ''
+      SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", GROUP="users"
+    '';
+  })
+];
 }
