@@ -89,8 +89,9 @@
     dd_resolution_option = lib.mkForce "disabled";  # Don't auto-change resolution (crashes on Wayland)
   };
 
-  # Steam gaming platform
-  programs.steam.enable = true;
+  # Steam gaming platform — disabled for now (pulls the corefonts FOD, whose
+  # upstream download currently hash-mismatches). Re-enable once resolved.
+  # programs.steam.enable = true;
 
   # uinput access for Sunshine virtual input devices
   # hidraw access for user (HID devices like keyboards, mice, etc.)
