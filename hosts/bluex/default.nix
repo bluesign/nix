@@ -16,6 +16,12 @@
   # Enable aarch64 emulation for cross-building (gunyah-nixos VM) — like blueminix
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
+  # ThinkPad X1 Carbon Gen 14 is very new Intel hardware — the default 25.11
+  # kernel (6.12) may lack working graphics/DRM for its GPU, which breaks the
+  # niri session. Use the latest kernel + all firmware for GPU/Wi-Fi support.
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  hardware.enableAllFirmware = true;
+
   # Intel graphics - hardware video acceleration + 32-bit for Steam
   hardware.graphics = {
     enable = true;
