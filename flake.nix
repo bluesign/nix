@@ -82,6 +82,12 @@
           users = [ "bluesign" ];
         };
 
+        # ThinkPad X1 Carbon Gen 14 (Intel) — full desktop clone
+        bluex = mkHost {
+          hostname = "bluex";
+          users = [ "bluesign" ];
+        };
+
         # Gunyah/crosvm VM — niri Wayland compositor
         gunyah-nixos = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";

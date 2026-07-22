@@ -3,3 +3,6 @@
 config/alacritty/alacritty.toml
 config/niri/config.kdl
 result
+
+# Samsung firmware / flashing blobs (never commit)
+hosts/blueminix/x/
